@@ -13,6 +13,8 @@ pnpm test src/env.test.ts  # run a single test file
 pnpm prepack    # compile to dist/
 ```
 
+Pre-commit hooks are managed by [Lefthook](https://lefthook.dev/), set up with `lefthook install`. Hooks automatically run dependency installation, type checking, formatting, linting, and documentation validation before each commit. If formatting or linting modifies any files, the commit is aborted — stage the auto-fixed files and recommit.
+
 ## Architecture
 
 `gha-utils` is a zero-runtime-dependency TypeScript library that wraps GitHub Actions' file-based APIs and workflow command syntax.
@@ -23,5 +25,3 @@ pnpm prepack    # compile to dist/
 - `log.ts` — writes GitHub Actions workflow commands (`::debug::`, `::warning::`, `::error::`, `::group::`, etc.) to stdout.
 
 **Testing**: Vitest with 100% coverage enforced. Tests spy on `process.stdout.write` and manipulate `process.env` to simulate the GitHub Actions runtime.
-
-**Pre-commit hooks** (Lefthook): runs type-check, format, lint, and TypeDoc validation. The hook fails if formatting or linting modifies any files. Workflow: write code → `git add` → `git commit` — if the hook fails, stage the auto-fixed files and recommit.
