@@ -12,28 +12,21 @@ jobs:
       - name: Checkout Project
         uses: actions/checkout@v6.0.2
 
+      - name: Install Lefthook
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash
+          sudo apt install lefthook
+
       - name: Setup pnpm
         uses: threeal/setup-pnpm-action@v1.0.0
         with:
           version: 10.33.4
 
-      - name: Install Dependencies
-        run: pnpm install
-
-      - name: Check Types
-        run: pnpm tsc
+      - name: Check pre-commit hook
+        run: lefthook run pre-commit --all-files
 
       - name: Test Library
         run: pnpm test
-
-      - name: Check Formatting
-        run: pnpm prettier --check .
-
-      - name: Check Lint
-        run: pnpm eslint
-
-      - name: Check Documentation
-        run: pnpm typedoc --emit none
 
       - name: Package Library
         run: pnpm pack
