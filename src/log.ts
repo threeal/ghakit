@@ -1,4 +1,4 @@
-import os from "node:os";
+import { EOL } from "node:os";
 
 /**
  * Logs an information message in GitHub Actions.
@@ -6,7 +6,7 @@ import os from "node:os";
  * @param message - The information message to log.
  */
 export function logInfo(message: string): void {
-  process.stdout.write(`${message}${os.EOL}`);
+  process.stdout.write(`${message}${EOL}`);
 }
 
 /**
@@ -15,7 +15,7 @@ export function logInfo(message: string): void {
  * @param message - The debug message to log.
  */
 export function logDebug(message: string): void {
-  process.stdout.write(`::debug::${message}${os.EOL}`);
+  process.stdout.write(`::debug::${message}${EOL}`);
 }
 
 /**
@@ -24,7 +24,7 @@ export function logDebug(message: string): void {
  * @param message - The warning message to log.
  */
 export function logWarning(message: string): void {
-  process.stdout.write(`::warning::${message}${os.EOL}`);
+  process.stdout.write(`::warning::${message}${EOL}`);
 }
 
 /**
@@ -34,7 +34,7 @@ export function logWarning(message: string): void {
  */
 export function logError(err: unknown): void {
   const message = err instanceof Error ? err.message : String(err);
-  process.stdout.write(`::error::${message}${os.EOL}`);
+  process.stdout.write(`::error::${message}${EOL}`);
 }
 
 /**
@@ -45,7 +45,7 @@ export function logError(err: unknown): void {
  */
 export function logCommand(command: string, ...args: string[]): void {
   const message = [command, ...args].join(" ");
-  process.stdout.write(`[command]${message}${os.EOL}`);
+  process.stdout.write(`[command]${message}${EOL}`);
 }
 
 /**
@@ -54,12 +54,12 @@ export function logCommand(command: string, ...args: string[]): void {
  * @param name - The name of the log group.
  */
 export function beginLogGroup(name: string): void {
-  process.stdout.write(`::group::${name}${os.EOL}`);
+  process.stdout.write(`::group::${name}${EOL}`);
 }
 
 /**
  * Ends the current log group in GitHub Actions.
  */
 export function endLogGroup(): void {
-  process.stdout.write(`::endgroup::${os.EOL}`);
+  process.stdout.write(`::endgroup::${EOL}`);
 }

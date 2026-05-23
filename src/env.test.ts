@@ -1,7 +1,7 @@
-import fsPromises from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { readFile, rm } from "node:fs/promises";
+import { EOL, tmpdir } from "node:os";
+import { delimiter, join } from "node:path";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
   addPath,
@@ -17,56 +17,73 @@ import {
   setStateSync,
 } from "./env.js";
 
-const originalProcessEnv = { ...process.env };
+describe("mustGetEnvironment", () => {
+  afterEach(() => vi.unstubAllEnvs());
 
-beforeEach(() => {
-  process.env = {};
-});
-
-describe("retrieve environment variables", () => {
-  it("should retrieve an environment variable", () => {
-    process.env.AN_ENV = "a value";
+  test("retrieves an environment variable", () => {
+    vi.stubEnv("AN_ENV", "a value");
     expect(mustGetEnvironment("AN_ENV")).toBe("a value");
   });
 
-  it("should fail to retrieve an undefined environment variable", () => {
+  test("throws on undefined environment variable", () => {
     expect(() => mustGetEnvironment("AN_UNDEFINED_ENV")).toThrow(
       "the AN_UNDEFINED_ENV environment variable must be defined",
     );
   });
 });
 
-describe("retrieve GitHub Actions inputs", () => {
-  it("should retrieve a GitHub Actions input", () => {
-    process.env["INPUT_AN-INPUT"] = " a value  ";
+describe("getInput", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  test("retrieves a GitHub Actions input", () => {
+    vi.stubEnv("INPUT_AN-INPUT", " a value  ");
     expect(getInput("an-input")).toBe("a value");
   });
 
-  it("should retrieve an undefined GitHub Actions input", () => {
+  test("returns empty string for undefined input", () => {
     expect(getInput("an-undefined-input")).toBe("");
   });
 });
 
-describe("set GitHub Actions outputs", () => {
-  const githubOutputFile = path.join(os.tmpdir(), "github_output");
+describe("getState", () => {
+  afterEach(() => vi.unstubAllEnvs());
 
-  beforeEach(async () => {
-    process.env.GITHUB_OUTPUT = githubOutputFile;
-    await fsPromises.rm(githubOutputFile, { force: true });
+  test("retrieves a GitHub Actions state", () => {
+    vi.stubEnv("STATE_a-state", " a value  ");
+    expect(getState("a-state")).toBe("a value");
   });
 
-  it("should set GitHub Actions outputs", async () => {
+  test("returns empty string for undefined state", () => {
+    expect(getState("an-undefined-state")).toBe("");
+  });
+});
+
+describe("setOutput", () => {
+  const githubOutputFile = join(tmpdir(), "github_output");
+  let savedEnv: NodeJS.ProcessEnv;
+
+  beforeEach(async () => {
+    savedEnv = process.env;
+    process.env = { GITHUB_OUTPUT: githubOutputFile };
+    await rm(githubOutputFile, { force: true });
+  });
+
+  afterEach(async () => {
+    process.env = savedEnv;
+    await rm(githubOutputFile, { force: true });
+  });
+
+  test("sets multiple outputs concurrently", async () => {
     await Promise.all([
       setOutput("an-output", "a value"),
       setOutput("another-output", "another value"),
     ]);
 
-    const content = await fsPromises.readFile(githubOutputFile, {
+    const content = await readFile(githubOutputFile, {
       encoding: "utf-8",
     });
-
     const lines = content
-      .split(os.EOL)
+      .split(EOL)
       .filter((line) => line !== "")
       .sort();
 
@@ -76,44 +93,36 @@ describe("set GitHub Actions outputs", () => {
     ]);
   });
 
-  it("should set GitHub Actions outputs synchronously", async () => {
+  test("sets outputs synchronously", async () => {
     setOutputSync("an-output", "a value");
     setOutputSync("another-output", "another value");
 
-    const content = await fsPromises.readFile(githubOutputFile, {
+    const content = await readFile(githubOutputFile, {
       encoding: "utf-8",
     });
 
     expect(content).toBe(
-      `an-output=a value${os.EOL}another-output=another value${os.EOL}`,
+      `an-output=a value${EOL}another-output=another value${EOL}`,
     );
   });
-
-  afterAll(async () => {
-    await fsPromises.rm(githubOutputFile, { force: true });
-  });
 });
 
-describe("retrieve GitHub Actions states", () => {
-  it("should retrieve a GitHub Actions state", () => {
-    process.env["STATE_a-state"] = " a value  ";
-    expect(getState("a-state")).toBe("a value");
-  });
-
-  it("should retrieve an undefined GitHub Actions state", () => {
-    expect(getState("an-undefined-state")).toBe("");
-  });
-});
-
-describe("set GitHub Actions states", () => {
-  const githubStateFile = path.join(os.tmpdir(), "github_state");
+describe("setState", () => {
+  const githubStateFile = join(tmpdir(), "github_state");
+  let savedEnv: NodeJS.ProcessEnv;
 
   beforeEach(async () => {
-    process.env.GITHUB_STATE = githubStateFile;
-    await fsPromises.rm(githubStateFile, { force: true });
+    savedEnv = process.env;
+    process.env = { GITHUB_STATE: githubStateFile };
+    await rm(githubStateFile, { force: true });
   });
 
-  it("should set GitHub Actions states", async () => {
+  afterEach(async () => {
+    process.env = savedEnv;
+    await rm(githubStateFile, { force: true });
+  });
+
+  test("sets multiple states concurrently", async () => {
     await Promise.all([
       setState("a-state", "a value"),
       setState("another-state", "another value"),
@@ -125,19 +134,18 @@ describe("set GitHub Actions states", () => {
       "STATE_another-state": "another value",
     });
 
-    const content = await fsPromises.readFile(githubStateFile, {
+    const content = await readFile(githubStateFile, {
       encoding: "utf-8",
     });
-
     const lines = content
-      .split(os.EOL)
+      .split(EOL)
       .filter((line) => line !== "")
       .sort();
 
     expect(lines).toEqual(["a-state=a value", "another-state=another value"]);
   });
 
-  it("should set GitHub Actions states synchronously", async () => {
+  test("sets states synchronously", async () => {
     setStateSync("a-state", "a value");
     setStateSync("another-state", "another value");
 
@@ -147,29 +155,32 @@ describe("set GitHub Actions states", () => {
       "STATE_another-state": "another value",
     });
 
-    const content = await fsPromises.readFile(githubStateFile, {
+    const content = await readFile(githubStateFile, {
       encoding: "utf-8",
     });
 
     expect(content).toBe(
-      `a-state=a value${os.EOL}another-state=another value${os.EOL}`,
+      `a-state=a value${EOL}another-state=another value${EOL}`,
     );
-  });
-
-  afterAll(async () => {
-    await fsPromises.rm(githubStateFile, { force: true });
   });
 });
 
-describe("set environment variables in GitHub Actions", () => {
-  const githubEnvFile = path.join(os.tmpdir(), "github_env");
+describe("setEnv", () => {
+  const githubEnvFile = join(tmpdir(), "github_env");
+  let savedEnv: NodeJS.ProcessEnv;
 
   beforeEach(async () => {
-    process.env.GITHUB_ENV = githubEnvFile;
-    await fsPromises.rm(githubEnvFile, { force: true });
+    savedEnv = process.env;
+    process.env = { GITHUB_ENV: githubEnvFile };
+    await rm(githubEnvFile, { force: true });
   });
 
-  it("should set environment variables in GitHub Actions", async () => {
+  afterEach(async () => {
+    process.env = savedEnv;
+    await rm(githubEnvFile, { force: true });
+  });
+
+  test("sets multiple environment variables concurrently", async () => {
     await Promise.all([
       setEnv("AN_ENV", "a value"),
       setEnv("ANOTHER_ENV", "another value"),
@@ -181,19 +192,18 @@ describe("set environment variables in GitHub Actions", () => {
       ANOTHER_ENV: "another value",
     });
 
-    const content = await fsPromises.readFile(githubEnvFile, {
+    const content = await readFile(githubEnvFile, {
       encoding: "utf-8",
     });
-
     const lines = content
-      .split(os.EOL)
+      .split(EOL)
       .filter((line) => line !== "")
       .sort();
 
     expect(lines).toEqual(["ANOTHER_ENV=another value", "AN_ENV=a value"]);
   });
 
-  it("should set environment variables in GitHub Actions synchronously", async () => {
+  test("sets environment variables synchronously", async () => {
     setEnvSync("AN_ENV", "a value");
     setEnvSync("ANOTHER_ENV", "another value");
 
@@ -203,64 +213,57 @@ describe("set environment variables in GitHub Actions", () => {
       ANOTHER_ENV: "another value",
     });
 
-    const content = await fsPromises.readFile(githubEnvFile, {
+    const content = await readFile(githubEnvFile, {
       encoding: "utf-8",
     });
 
-    expect(content).toBe(
-      `AN_ENV=a value${os.EOL}ANOTHER_ENV=another value${os.EOL}`,
-    );
-  });
-
-  afterAll(async () => {
-    await fsPromises.rm(githubEnvFile, { force: true });
+    expect(content).toBe(`AN_ENV=a value${EOL}ANOTHER_ENV=another value${EOL}`);
   });
 });
 
-describe("adds system paths in GitHub Actions", () => {
-  const githubPathFile = path.join(os.tmpdir(), "github_path");
+describe("addPath", () => {
+  const githubPathFile = join(tmpdir(), "github_path");
+  let savedEnv: NodeJS.ProcessEnv;
 
   beforeEach(async () => {
-    process.env.GITHUB_PATH = githubPathFile;
-    await fsPromises.rm(githubPathFile, { force: true });
+    savedEnv = process.env;
+    process.env = { GITHUB_PATH: githubPathFile };
+    await rm(githubPathFile, { force: true });
   });
 
-  it("should add system paths in GitHub Actions", async () => {
+  afterEach(async () => {
+    process.env = savedEnv;
+    await rm(githubPathFile, { force: true });
+  });
+
+  test("adds multiple paths concurrently", async () => {
     await Promise.all([addPath("a-path"), addPath("another-path")]);
 
-    const sysPaths = (process.env.PATH ?? "").split(path.delimiter).sort();
+    const sysPaths = (process.env.PATH ?? "").split(delimiter).sort();
     expect(sysPaths).toEqual(["a-path", "another-path"]);
 
-    const content = await fsPromises.readFile(githubPathFile, {
+    const content = await readFile(githubPathFile, {
       encoding: "utf-8",
     });
-
     const lines = content
-      .split(os.EOL)
+      .split(EOL)
       .filter((line) => line !== "")
       .sort();
+
     expect(lines).toEqual(["a-path", "another-path"]);
   });
 
-  it("should add system paths in GitHub Actions synchronously", async () => {
+  test("adds paths synchronously", async () => {
     addPathSync("a-path");
     addPathSync("another-path");
 
-    const sysPaths = (process.env.PATH ?? "").split(path.delimiter);
+    const sysPaths = (process.env.PATH ?? "").split(delimiter);
     expect(sysPaths).toEqual(["another-path", "a-path"]);
 
-    const content = await fsPromises.readFile(githubPathFile, {
+    const content = await readFile(githubPathFile, {
       encoding: "utf-8",
     });
 
-    expect(content).toBe(`a-path${os.EOL}another-path${os.EOL}`);
+    expect(content).toBe(`a-path${EOL}another-path${EOL}`);
   });
-
-  afterAll(async () => {
-    await fsPromises.rm(githubPathFile, { force: true });
-  });
-});
-
-afterAll(() => {
-  process.env = originalProcessEnv;
 });

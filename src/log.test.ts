@@ -1,5 +1,13 @@
-import os from "node:os";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { EOL } from "node:os";
+import {
+  type MockInstance,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vitest";
 
 import {
   beginLogGroup,
@@ -11,64 +19,66 @@ import {
   logWarning,
 } from "./log.js";
 
-let stdoutData: string;
-vi.spyOn(process.stdout, "write").mockImplementation((buffer) => {
-  if (typeof buffer === "string") stdoutData += buffer;
-  return true;
-});
+let writeSpy: MockInstance;
 
 beforeEach(() => {
-  stdoutData = "";
+  writeSpy = vi.spyOn(process.stdout, "write").mockReturnValue(true);
 });
 
-describe("log information in GitHub Actions", () => {
-  it("should log an information message in GitHub Actions", () => {
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+describe("logInfo", () => {
+  test("writes message to stdout", () => {
     logInfo("an information message");
-    expect(stdoutData).toBe(`an information message${os.EOL}`);
+    expect(writeSpy).toHaveBeenCalledWith(`an information message${EOL}`);
   });
 });
 
-describe("log debugs in GitHub Actions", () => {
-  it("should log a debug message in GitHub Actions", () => {
+describe("logDebug", () => {
+  test("writes debug command to stdout", () => {
     logDebug("a debug message");
-    expect(stdoutData).toBe(`::debug::a debug message${os.EOL}`);
+    expect(writeSpy).toHaveBeenCalledWith(`::debug::a debug message${EOL}`);
   });
 });
 
-describe("log warnings in GitHub Actions", () => {
-  it("should log a warning message in GitHub Actions", () => {
+describe("logWarning", () => {
+  test("writes warning command to stdout", () => {
     logWarning("a warning message");
-    expect(stdoutData).toBe(`::warning::a warning message${os.EOL}`);
+    expect(writeSpy).toHaveBeenCalledWith(`::warning::a warning message${EOL}`);
   });
 });
 
-describe("log errors in GitHub Actions", () => {
-  it("should log an error message in GitHub Actions", () => {
+describe("logError", () => {
+  test("writes error command for a string", () => {
     logError("an error message");
-    expect(stdoutData).toBe(`::error::an error message${os.EOL}`);
+    expect(writeSpy).toHaveBeenCalledWith(`::error::an error message${EOL}`);
   });
 
-  it("should log an error object in GitHub Actions", () => {
+  test("writes error command for an Error object", () => {
     logError(new Error("an error object"));
-    expect(stdoutData).toBe(`::error::an error object${os.EOL}`);
+    expect(writeSpy).toHaveBeenCalledWith(`::error::an error object${EOL}`);
   });
 });
 
-describe("log commands in GitHub Actions", () => {
-  it("should log a command in GitHub Actions", () => {
+describe("logCommand", () => {
+  test("writes command with arguments to stdout", () => {
     logCommand("cmd", "arg0", "arg1", "arg2");
-    expect(stdoutData).toBe(`[command]cmd arg0 arg1 arg2${os.EOL}`);
+    expect(writeSpy).toHaveBeenCalledWith(`[command]cmd arg0 arg1 arg2${EOL}`);
   });
 });
 
-describe("begin and end log groups in GitHub Actions", () => {
-  it("should begin a log group in GitHub Actions", () => {
+describe("beginLogGroup", () => {
+  test("writes group command to stdout", () => {
     beginLogGroup("a log group");
-    expect(stdoutData).toBe(`::group::a log group${os.EOL}`);
+    expect(writeSpy).toHaveBeenCalledWith(`::group::a log group${EOL}`);
   });
+});
 
-  it("should end the current log group in GitHub Actions", () => {
+describe("endLogGroup", () => {
+  test("writes endgroup command to stdout", () => {
     endLogGroup();
-    expect(stdoutData).toBe(`::endgroup::${os.EOL}`);
+    expect(writeSpy).toHaveBeenCalledWith(`::endgroup::${EOL}`);
   });
 });
