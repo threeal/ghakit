@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
 jobs:
-  deploy-docs:
+  deploy-documentation:
     name: Deploy Documentation
     runs-on: ubuntu-24.04
     permissions:
@@ -12,12 +12,12 @@ jobs:
       pages: write
     environment:
       name: github-pages
-      url: ${{ steps.deploy-docs.outputs.page_url }}
+      url: ${{ steps.deploy-documentation.outputs.page_url }}
     concurrency:
       group: pages
       cancel-in-progress: true
     steps:
-      - name: Checkout Project
+      - name: Checkout
         uses: actions/checkout@v6.0.2
 
       - name: Setup pnpm
@@ -25,17 +25,17 @@ jobs:
         with:
           version: 10.33.4
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: pnpm install
 
-      - name: Build Documentation
+      - name: Build documentation
         run: pnpm typedoc
 
-      - name: Upload Documentation
+      - name: Upload documentation
         uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: docs
 
-      - name: Deploy Documentation
-        id: deploy-docs
+      - name: Deploy documentation
+        id: deploy-documentation
         uses: actions/deploy-pages@v5.0.0
