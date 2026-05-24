@@ -1,7 +1,14 @@
-import { readFile, rm } from "node:fs/promises";
-import { EOL, tmpdir } from "node:os";
-import { delimiter, join } from "node:path";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { mkdir, readFile, rm } from "node:fs/promises";
+import { EOL } from "node:os";
+import { delimiter, join, resolve } from "node:path";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from "vitest";
 
 import {
   addPath,
@@ -17,11 +24,19 @@ import {
   setStateSync,
 } from "./env.js";
 
-describe("mustGetEnvironment", () => {
-  afterEach(() => vi.unstubAllEnvs());
+const tmpDir = resolve(import.meta.dirname, `${import.meta.filename}.tmp`);
 
+beforeAll(() => mkdir(tmpDir, { recursive: true }));
+
+afterAll(() => rm(tmpDir, { recursive: true, force: true }));
+
+beforeEach(() => {
+  process.env = {};
+});
+
+describe("mustGetEnvironment", () => {
   test("retrieves an environment variable", () => {
-    vi.stubEnv("AN_ENV", "a value");
+    process.env.AN_ENV = "a value";
     expect(mustGetEnvironment("AN_ENV")).toBe("a value");
   });
 
@@ -33,10 +48,8 @@ describe("mustGetEnvironment", () => {
 });
 
 describe("getInput", () => {
-  afterEach(() => vi.unstubAllEnvs());
-
   test("retrieves a GitHub Actions input", () => {
-    vi.stubEnv("INPUT_AN-INPUT", " a value  ");
+    process.env["INPUT_AN-INPUT"] = " a value  ";
     expect(getInput("an-input")).toBe("a value");
   });
 
@@ -46,10 +59,8 @@ describe("getInput", () => {
 });
 
 describe("getState", () => {
-  afterEach(() => vi.unstubAllEnvs());
-
   test("retrieves a GitHub Actions state", () => {
-    vi.stubEnv("STATE_a-state", " a value  ");
+    process.env["STATE_a-state"] = " a value  ";
     expect(getState("a-state")).toBe("a value");
   });
 
@@ -59,18 +70,11 @@ describe("getState", () => {
 });
 
 describe("setOutput", () => {
-  const githubOutputFile = join(tmpdir(), "github_output");
-  let savedEnv: NodeJS.ProcessEnv;
+  const githubOutput = join(tmpDir, "github_output");
 
   beforeEach(async () => {
-    savedEnv = process.env;
-    process.env = { GITHUB_OUTPUT: githubOutputFile };
-    await rm(githubOutputFile, { force: true });
-  });
-
-  afterEach(async () => {
-    process.env = savedEnv;
-    await rm(githubOutputFile, { force: true });
+    await rm(githubOutput, { force: true });
+    process.env.GITHUB_OUTPUT = githubOutput;
   });
 
   test("sets multiple outputs concurrently", async () => {
@@ -79,15 +83,9 @@ describe("setOutput", () => {
       setOutput("another-output", "another value"),
     ]);
 
-    const content = await readFile(githubOutputFile, {
-      encoding: "utf-8",
-    });
-    const lines = content
-      .split(EOL)
-      .filter((line) => line !== "")
-      .sort();
-
-    expect(lines).toEqual([
+    const content = await readFile(githubOutput, { encoding: "utf-8" });
+    expect(content.split(EOL).sort()).toStrictEqual([
+      "",
       "an-output=a value",
       "another-output=another value",
     ]);
@@ -97,10 +95,7 @@ describe("setOutput", () => {
     setOutputSync("an-output", "a value");
     setOutputSync("another-output", "another value");
 
-    const content = await readFile(githubOutputFile, {
-      encoding: "utf-8",
-    });
-
+    const content = await readFile(githubOutput, { encoding: "utf-8" });
     expect(content).toBe(
       `an-output=a value${EOL}another-output=another value${EOL}`,
     );
@@ -108,18 +103,11 @@ describe("setOutput", () => {
 });
 
 describe("setState", () => {
-  const githubStateFile = join(tmpdir(), "github_state");
-  let savedEnv: NodeJS.ProcessEnv;
+  const githubState = join(tmpDir, "github_state");
 
   beforeEach(async () => {
-    savedEnv = process.env;
-    process.env = { GITHUB_STATE: githubStateFile };
-    await rm(githubStateFile, { force: true });
-  });
-
-  afterEach(async () => {
-    process.env = savedEnv;
-    await rm(githubStateFile, { force: true });
+    await rm(githubState, { force: true });
+    process.env.GITHUB_STATE = githubState;
   });
 
   test("sets multiple states concurrently", async () => {
@@ -128,37 +116,31 @@ describe("setState", () => {
       setState("another-state", "another value"),
     ]);
 
-    expect(process.env).toEqual({
-      GITHUB_STATE: githubStateFile,
+    expect(process.env).toStrictEqual({
+      GITHUB_STATE: githubState,
       "STATE_a-state": "a value",
       "STATE_another-state": "another value",
     });
 
-    const content = await readFile(githubStateFile, {
-      encoding: "utf-8",
-    });
-    const lines = content
-      .split(EOL)
-      .filter((line) => line !== "")
-      .sort();
-
-    expect(lines).toEqual(["a-state=a value", "another-state=another value"]);
+    const content = await readFile(githubState, { encoding: "utf-8" });
+    expect(content.split(EOL).sort()).toStrictEqual([
+      "",
+      "a-state=a value",
+      "another-state=another value",
+    ]);
   });
 
   test("sets states synchronously", async () => {
     setStateSync("a-state", "a value");
     setStateSync("another-state", "another value");
 
-    expect(process.env).toEqual({
-      GITHUB_STATE: githubStateFile,
+    expect(process.env).toStrictEqual({
+      GITHUB_STATE: githubState,
       "STATE_a-state": "a value",
       "STATE_another-state": "another value",
     });
 
-    const content = await readFile(githubStateFile, {
-      encoding: "utf-8",
-    });
-
+    const content = await readFile(githubState, { encoding: "utf-8" });
     expect(content).toBe(
       `a-state=a value${EOL}another-state=another value${EOL}`,
     );
@@ -166,18 +148,11 @@ describe("setState", () => {
 });
 
 describe("setEnv", () => {
-  const githubEnvFile = join(tmpdir(), "github_env");
-  let savedEnv: NodeJS.ProcessEnv;
+  const githubEnv = join(tmpDir, "github_env");
 
   beforeEach(async () => {
-    savedEnv = process.env;
-    process.env = { GITHUB_ENV: githubEnvFile };
-    await rm(githubEnvFile, { force: true });
-  });
-
-  afterEach(async () => {
-    process.env = savedEnv;
-    await rm(githubEnvFile, { force: true });
+    await rm(githubEnv, { force: true });
+    process.env.GITHUB_ENV = githubEnv;
   });
 
   test("sets multiple environment variables concurrently", async () => {
@@ -186,84 +161,63 @@ describe("setEnv", () => {
       setEnv("ANOTHER_ENV", "another value"),
     ]);
 
-    expect(process.env).toEqual({
-      GITHUB_ENV: githubEnvFile,
+    expect(process.env).toStrictEqual({
+      GITHUB_ENV: githubEnv,
       AN_ENV: "a value",
       ANOTHER_ENV: "another value",
     });
 
-    const content = await readFile(githubEnvFile, {
-      encoding: "utf-8",
-    });
-    const lines = content
-      .split(EOL)
-      .filter((line) => line !== "")
-      .sort();
-
-    expect(lines).toEqual(["ANOTHER_ENV=another value", "AN_ENV=a value"]);
+    const content = await readFile(githubEnv, { encoding: "utf-8" });
+    expect(content.split(EOL).sort()).toStrictEqual([
+      "",
+      "ANOTHER_ENV=another value",
+      "AN_ENV=a value",
+    ]);
   });
 
   test("sets environment variables synchronously", async () => {
     setEnvSync("AN_ENV", "a value");
     setEnvSync("ANOTHER_ENV", "another value");
 
-    expect(process.env).toEqual({
-      GITHUB_ENV: githubEnvFile,
+    expect(process.env).toStrictEqual({
+      GITHUB_ENV: githubEnv,
       AN_ENV: "a value",
       ANOTHER_ENV: "another value",
     });
 
-    const content = await readFile(githubEnvFile, {
-      encoding: "utf-8",
-    });
-
+    const content = await readFile(githubEnv, { encoding: "utf-8" });
     expect(content).toBe(`AN_ENV=a value${EOL}ANOTHER_ENV=another value${EOL}`);
   });
 });
 
 describe("addPath", () => {
-  const githubPathFile = join(tmpdir(), "github_path");
-  let savedEnv: NodeJS.ProcessEnv;
+  const githubPath = join(tmpDir, "github_path");
 
   beforeEach(async () => {
-    savedEnv = process.env;
-    process.env = { GITHUB_PATH: githubPathFile };
-    await rm(githubPathFile, { force: true });
-  });
-
-  afterEach(async () => {
-    process.env = savedEnv;
-    await rm(githubPathFile, { force: true });
+    await rm(githubPath, { force: true });
+    process.env.GITHUB_PATH = githubPath;
   });
 
   test("adds multiple paths concurrently", async () => {
     await Promise.all([addPath("a-path"), addPath("another-path")]);
 
-    const sysPaths = (process.env.PATH ?? "").split(delimiter).sort();
-    expect(sysPaths).toEqual(["a-path", "another-path"]);
+    expect(process.env.PATH).toBe(`another-path${delimiter}a-path`);
 
-    const content = await readFile(githubPathFile, {
-      encoding: "utf-8",
-    });
-    const lines = content
-      .split(EOL)
-      .filter((line) => line !== "")
-      .sort();
-
-    expect(lines).toEqual(["a-path", "another-path"]);
+    const content = await readFile(githubPath, { encoding: "utf-8" });
+    expect(content.split(EOL).sort()).toStrictEqual([
+      "",
+      "a-path",
+      "another-path",
+    ]);
   });
 
   test("adds paths synchronously", async () => {
     addPathSync("a-path");
     addPathSync("another-path");
 
-    const sysPaths = (process.env.PATH ?? "").split(delimiter);
-    expect(sysPaths).toEqual(["another-path", "a-path"]);
+    expect(process.env.PATH).toBe(`another-path${delimiter}a-path`);
 
-    const content = await readFile(githubPathFile, {
-      encoding: "utf-8",
-    });
-
+    const content = await readFile(githubPath, { encoding: "utf-8" });
     expect(content).toBe(`a-path${EOL}another-path${EOL}`);
   });
 });
