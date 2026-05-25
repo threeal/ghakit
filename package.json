@@ -17,20 +17,20 @@
   "author": "Alfi Maulana <alfi.maulana.f@gmail.com>",
   "exports": {
     "./exec": {
-      "default": "./dist/exec.js",
-      "types": "./dist/exec.d.ts"
+      "types": "./dist/exec.d.ts",
+      "import": "./dist/exec.js"
     },
     "./io": {
-      "default": "./dist/io.js",
-      "types": "./dist/io.d.ts"
+      "types": "./dist/io.d.ts",
+      "import": "./dist/io.js"
     },
     "./log": {
-      "default": "./dist/log.js",
-      "types": "./dist/log.d.ts"
+      "types": "./dist/log.d.ts",
+      "import": "./dist/log.js"
     },
     "./vars": {
-      "default": "./dist/vars.js",
-      "types": "./dist/vars.d.ts"
+      "types": "./dist/vars.d.ts",
+      "import": "./dist/vars.js"
     }
   },
   "type": "module",
