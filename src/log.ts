@@ -19,22 +19,63 @@ export function logDebug(message: string): void {
 }
 
 /**
+ * Optional annotation parameters for workflow commands that support annotations.
+ */
+export interface AnnotationOptions {
+  /** Custom title for the annotation. */
+  title?: string;
+  /** The filename to associate with the annotation. */
+  file?: string;
+  /** The column number to associate with the annotation. */
+  col?: number;
+  /** The end column number to associate with the annotation. */
+  endColumn?: number;
+  /** The line number to associate with the annotation. */
+  line?: number;
+  /** The end line number to associate with the annotation. */
+  endLine?: number;
+}
+
+function formatAnnotationParams(options: AnnotationOptions): string {
+  const params = Object.entries(options)
+    .filter(([, v]) => v !== undefined)
+    .map(([k, v]) => `${k}=${String(v)}`)
+    .join(",");
+  return params ? ` ${params}` : "";
+}
+
+/**
+ * Logs a notice message in GitHub Actions.
+ *
+ * @param message - The notice message to log.
+ * @param options - Optional annotation parameters.
+ */
+export function logNotice(message: string, options?: AnnotationOptions): void {
+  const params = options ? formatAnnotationParams(options) : "";
+  process.stdout.write(`::notice${params}::${message}${EOL}`);
+}
+
+/**
  * Logs a warning message in GitHub Actions.
  *
  * @param message - The warning message to log.
+ * @param options - Optional annotation parameters.
  */
-export function logWarning(message: string): void {
-  process.stdout.write(`::warning::${message}${EOL}`);
+export function logWarning(message: string, options?: AnnotationOptions): void {
+  const params = options ? formatAnnotationParams(options) : "";
+  process.stdout.write(`::warning${params}::${message}${EOL}`);
 }
 
 /**
  * Logs an error message in GitHub Actions.
  *
  * @param err - The error, which can be of any type.
+ * @param options - Optional annotation parameters.
  */
-export function logError(err: unknown): void {
+export function logError(err: unknown, options?: AnnotationOptions): void {
   const message = err instanceof Error ? err.message : String(err);
-  process.stdout.write(`::error::${message}${EOL}`);
+  const params = options ? formatAnnotationParams(options) : "";
+  process.stdout.write(`::error${params}::${message}${EOL}`);
 }
 
 /**

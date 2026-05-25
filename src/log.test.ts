@@ -18,6 +18,7 @@ import {
   logDebug,
   logError,
   logInfo,
+  logNotice,
   logWarning,
   resumeCommands,
   stopCommands,
@@ -51,11 +52,80 @@ describe("logDebug", () => {
   });
 });
 
+describe("logNotice", () => {
+  test("writes notice command to stdout", () => {
+    logNotice("a notice message");
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [`::notice::a notice message${EOL}`],
+    ]);
+  });
+
+  test("writes notice command with empty options to stdout", () => {
+    logNotice("a notice message", {});
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [`::notice::a notice message${EOL}`],
+    ]);
+  });
+
+  test("writes notice command with one option to stdout", () => {
+    logNotice("a notice message", { file: "foo.ts" });
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [`::notice file=foo.ts::a notice message${EOL}`],
+    ]);
+  });
+
+  test("writes notice command with all options to stdout", () => {
+    logNotice("a notice message", {
+      title: "a title",
+      file: "foo.ts",
+      line: 1,
+      endLine: 2,
+      col: 3,
+      endColumn: 4,
+    });
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [
+        `::notice title=a title,file=foo.ts,line=1,endLine=2,col=3,endColumn=4::a notice message${EOL}`,
+      ],
+    ]);
+  });
+});
+
 describe("logWarning", () => {
   test("writes warning command to stdout", () => {
     logWarning("a warning message");
     expect(writeSpy.mock.calls).toStrictEqual([
       [`::warning::a warning message${EOL}`],
+    ]);
+  });
+
+  test("writes warning command with empty options to stdout", () => {
+    logWarning("a warning message", {});
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [`::warning::a warning message${EOL}`],
+    ]);
+  });
+
+  test("writes warning command with one option to stdout", () => {
+    logWarning("a warning message", { file: "foo.ts" });
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [`::warning file=foo.ts::a warning message${EOL}`],
+    ]);
+  });
+
+  test("writes warning command with all options to stdout", () => {
+    logWarning("a warning message", {
+      title: "a title",
+      file: "foo.ts",
+      line: 1,
+      endLine: 2,
+      col: 3,
+      endColumn: 4,
+    });
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [
+        `::warning title=a title,file=foo.ts,line=1,endLine=2,col=3,endColumn=4::a warning message${EOL}`,
+      ],
     ]);
   });
 });
@@ -72,6 +142,36 @@ describe("logError", () => {
     logError(new Error("an error object"));
     expect(writeSpy.mock.calls).toStrictEqual([
       [`::error::an error object${EOL}`],
+    ]);
+  });
+
+  test("writes error command with empty options to stdout", () => {
+    logError("an error message", {});
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [`::error::an error message${EOL}`],
+    ]);
+  });
+
+  test("writes error command with one option to stdout", () => {
+    logError("an error message", { file: "foo.ts" });
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [`::error file=foo.ts::an error message${EOL}`],
+    ]);
+  });
+
+  test("writes error command with all options to stdout", () => {
+    logError("an error message", {
+      title: "a title",
+      file: "foo.ts",
+      line: 1,
+      endLine: 2,
+      col: 3,
+      endColumn: 4,
+    });
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [
+        `::error title=a title,file=foo.ts,line=1,endLine=2,col=3,endColumn=4::an error message${EOL}`,
+      ],
     ]);
   });
 });
