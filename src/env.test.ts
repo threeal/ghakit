@@ -8,6 +8,7 @@ import {
   describe,
   expect,
   test,
+  vi,
 } from "vitest";
 
 import {
@@ -15,7 +16,6 @@ import {
   addPathSync,
   getInput,
   getState,
-  mustGetEnvironment,
   setEnv,
   setEnvSync,
   setOutput,
@@ -23,6 +23,14 @@ import {
   setState,
   setStateSync,
 } from "./env.js";
+import {
+  getGitHubEnv,
+  getGitHubOutput,
+  getGitHubPath,
+  getGitHubState,
+} from "./vars.js";
+
+vi.mock("./vars.js");
 
 const tmpDir = resolve(import.meta.dirname, `${import.meta.filename}.tmp`);
 
@@ -32,19 +40,6 @@ afterAll(() => rm(tmpDir, { recursive: true, force: true }));
 
 beforeEach(() => {
   process.env = {};
-});
-
-describe("mustGetEnvironment", () => {
-  test("retrieves an environment variable", () => {
-    process.env.AN_ENV = "a value";
-    expect(mustGetEnvironment("AN_ENV")).toBe("a value");
-  });
-
-  test("throws on undefined environment variable", () => {
-    expect(() => mustGetEnvironment("AN_UNDEFINED_ENV")).toThrow(
-      "the AN_UNDEFINED_ENV environment variable must be defined",
-    );
-  });
 });
 
 describe("getInput", () => {
@@ -72,10 +67,9 @@ describe("getState", () => {
 describe("setOutput", () => {
   const githubOutput = join(tmpDir, "github_output");
 
-  beforeEach(async () => {
-    await rm(githubOutput, { force: true });
-    process.env.GITHUB_OUTPUT = githubOutput;
-  });
+  beforeAll(() => vi.mocked(getGitHubOutput).mockReturnValue(githubOutput));
+
+  beforeEach(() => rm(githubOutput, { force: true }));
 
   test("sets multiple outputs concurrently", async () => {
     await Promise.all([
@@ -105,10 +99,9 @@ describe("setOutput", () => {
 describe("setState", () => {
   const githubState = join(tmpDir, "github_state");
 
-  beforeEach(async () => {
-    await rm(githubState, { force: true });
-    process.env.GITHUB_STATE = githubState;
-  });
+  beforeAll(() => vi.mocked(getGitHubState).mockReturnValue(githubState));
+
+  beforeEach(() => rm(githubState, { force: true }));
 
   test("sets multiple states concurrently", async () => {
     await Promise.all([
@@ -117,7 +110,6 @@ describe("setState", () => {
     ]);
 
     expect(process.env).toStrictEqual({
-      GITHUB_STATE: githubState,
       "STATE_a-state": "a value",
       "STATE_another-state": "another value",
     });
@@ -135,7 +127,6 @@ describe("setState", () => {
     setStateSync("another-state", "another value");
 
     expect(process.env).toStrictEqual({
-      GITHUB_STATE: githubState,
       "STATE_a-state": "a value",
       "STATE_another-state": "another value",
     });
@@ -150,10 +141,9 @@ describe("setState", () => {
 describe("setEnv", () => {
   const githubEnv = join(tmpDir, "github_env");
 
-  beforeEach(async () => {
-    await rm(githubEnv, { force: true });
-    process.env.GITHUB_ENV = githubEnv;
-  });
+  beforeAll(() => vi.mocked(getGitHubEnv).mockReturnValue(githubEnv));
+
+  beforeEach(() => rm(githubEnv, { force: true }));
 
   test("sets multiple environment variables concurrently", async () => {
     await Promise.all([
@@ -162,7 +152,6 @@ describe("setEnv", () => {
     ]);
 
     expect(process.env).toStrictEqual({
-      GITHUB_ENV: githubEnv,
       AN_ENV: "a value",
       ANOTHER_ENV: "another value",
     });
@@ -180,7 +169,6 @@ describe("setEnv", () => {
     setEnvSync("ANOTHER_ENV", "another value");
 
     expect(process.env).toStrictEqual({
-      GITHUB_ENV: githubEnv,
       AN_ENV: "a value",
       ANOTHER_ENV: "another value",
     });
@@ -193,10 +181,9 @@ describe("setEnv", () => {
 describe("addPath", () => {
   const githubPath = join(tmpDir, "github_path");
 
-  beforeEach(async () => {
-    await rm(githubPath, { force: true });
-    process.env.GITHUB_PATH = githubPath;
-  });
+  beforeAll(() => vi.mocked(getGitHubPath).mockReturnValue(githubPath));
+
+  beforeEach(() => rm(githubPath, { force: true }));
 
   test("adds multiple paths concurrently", async () => {
     await Promise.all([addPath("a-path"), addPath("another-path")]);
