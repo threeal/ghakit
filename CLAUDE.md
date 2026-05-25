@@ -23,7 +23,7 @@ Pre-commit hooks are managed by [Lefthook](https://lefthook.dev/), set up with `
 
 - `env.ts` — reads inputs from `INPUT_*` env vars and appends key-value pairs to the files pointed to by `GITHUB_OUTPUT`, `GITHUB_STATE`, `GITHUB_ENV`, and `GITHUB_PATH`. Every mutating function has both an async and a sync variant.
 - `exec.ts` — wraps Node's `child_process.spawn` in a promise. Logs the command via `logCommand` and pipes stdout/stderr by default. Supports `silent` (suppress logging and piping) and `capture` (collect stdout and return it as a string) options.
-- `log.ts` — writes GitHub Actions workflow commands (`::debug::`, `::warning::`, `::error::`, `::group::`, `::stop-commands::`, etc.) to stdout.
+- `log.ts` — writes GitHub Actions workflow commands (`::debug::`, `::warning::`, `::error::`, `::add-mask::`, `::group::`, `::stop-commands::`, etc.) to stdout.
 - `vars.ts` — exposes typed getter functions for every [default GitHub Actions variable](https://docs.github.com/en/actions/reference/workflows-and-actions/variables) (e.g. `getGitHubRepository()`, `getRunnerOs()`). Boolean variables return `boolean`, numeric count/day variables (`getGitHubRetentionDays`, `getGitHubRunAttempt`, `getGitHubRunNumber`) return `number`, and all others (including ID variables) return `string`.
 
 **Testing**: Vitest with 100% coverage enforced. Tests spy on `process.stdout.write` and manipulate `process.env` to simulate the GitHub Actions runtime.

@@ -89,6 +89,14 @@ const arch = getRunnerArch(); // "X64", "ARM64", etc.
 const isDebug = getRunnerDebug(); // true if debug logging is enabled
 ```
 
+### Masking Values in Logs
+
+Sensitive values can be masked using the [`addLogMask`](https://threeal.github.io/gha-utils/functions/addLogMask.html) function. Any subsequent occurrence of the masked value in the workflow logs will be replaced with `***`:
+
+```ts
+addLogMask(process.env.MY_SECRET);
+```
+
 ### Logging Messages
 
 There are various ways to log messages in GitHub Actions, including [`logInfo`](https://threeal.github.io/gha-utils/functions/logInfo.html) for logging an informational message, [`logDebug`](https://threeal.github.io/gha-utils/functions/logDebug.html) for logging a debug message, [`logWarning`](https://threeal.github.io/gha-utils/functions/logWarning.html) for logging a warning message, [`logError`](https://threeal.github.io/gha-utils/functions/logError.html) for logging an error message, and [`logCommand`](https://threeal.github.io/gha-utils/functions/logCommand.html) for logging a command line message:

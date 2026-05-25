@@ -49,6 +49,16 @@ export function logCommand(command: string, ...args: string[]): void {
 }
 
 /**
+ * Masks a value in GitHub Actions logs.
+ *
+ * @param value - The value to mask. Any occurrence of this value in subsequent
+ *   log output will be replaced with `***`.
+ */
+export function addLogMask(value: string): void {
+  process.stdout.write(`::add-mask::${value}${EOL}`);
+}
+
+/**
  * Begins a log group in GitHub Actions.
  *
  * @param name - The name of the log group.
