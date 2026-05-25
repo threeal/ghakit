@@ -3,21 +3,12 @@ import { appendFile } from "node:fs/promises";
 import { EOL } from "node:os";
 import { delimiter } from "node:path";
 
-/**
- * @internal
- * Retrieves the value of an environment variable.
- *
- * @param name - The name of the environment variable.
- * @returns The value of the environment variable.
- * @throws Error if the environment variable is not defined.
- */
-export function mustGetEnvironment(name: string): string {
-  const value = process.env[name];
-  if (value === undefined) {
-    throw new Error(`the ${name} environment variable must be defined`);
-  }
-  return value;
-}
+import {
+  getGitHubEnv,
+  getGitHubOutput,
+  getGitHubPath,
+  getGitHubState,
+} from "./vars.js";
 
 /**
  * Retrieves the value of a GitHub Actions input.
@@ -38,8 +29,7 @@ export function getInput(name: string): string {
  * @returns A promise that resolves when the value is successfully set.
  */
 export async function setOutput(name: string, value: string): Promise<void> {
-  const filePath = mustGetEnvironment("GITHUB_OUTPUT");
-  await appendFile(filePath, `${name}=${value}${EOL}`);
+  await appendFile(getGitHubOutput(), `${name}=${value}${EOL}`);
 }
 
 /**
@@ -49,8 +39,7 @@ export async function setOutput(name: string, value: string): Promise<void> {
  * @param value - The value to set for the GitHub Actions output.
  */
 export function setOutputSync(name: string, value: string): void {
-  const filePath = mustGetEnvironment("GITHUB_OUTPUT");
-  appendFileSync(filePath, `${name}=${value}${EOL}`);
+  appendFileSync(getGitHubOutput(), `${name}=${value}${EOL}`);
 }
 
 /**
@@ -73,8 +62,7 @@ export function getState(name: string): string {
  */
 export async function setState(name: string, value: string): Promise<void> {
   process.env[`STATE_${name}`] = value;
-  const filePath = mustGetEnvironment("GITHUB_STATE");
-  await appendFile(filePath, `${name}=${value}${EOL}`);
+  await appendFile(getGitHubState(), `${name}=${value}${EOL}`);
 }
 
 /**
@@ -85,8 +73,7 @@ export async function setState(name: string, value: string): Promise<void> {
  */
 export function setStateSync(name: string, value: string): void {
   process.env[`STATE_${name}`] = value;
-  const filePath = mustGetEnvironment("GITHUB_STATE");
-  appendFileSync(filePath, `${name}=${value}${EOL}`);
+  appendFileSync(getGitHubState(), `${name}=${value}${EOL}`);
 }
 
 /**
@@ -99,8 +86,7 @@ export function setStateSync(name: string, value: string): void {
  */
 export async function setEnv(name: string, value: string): Promise<void> {
   process.env[name] = value;
-  const filePath = mustGetEnvironment("GITHUB_ENV");
-  await appendFile(filePath, `${name}=${value}${EOL}`);
+  await appendFile(getGitHubEnv(), `${name}=${value}${EOL}`);
 }
 
 /**
@@ -111,8 +97,7 @@ export async function setEnv(name: string, value: string): Promise<void> {
  */
 export function setEnvSync(name: string, value: string): void {
   process.env[name] = value;
-  const filePath = mustGetEnvironment("GITHUB_ENV");
-  appendFileSync(filePath, `${name}=${value}${EOL}`);
+  appendFileSync(getGitHubEnv(), `${name}=${value}${EOL}`);
 }
 
 /**
@@ -127,8 +112,7 @@ export async function addPath(sysPath: string): Promise<void> {
       ? `${sysPath}${delimiter}${process.env.PATH}`
       : sysPath;
 
-  const filePath = mustGetEnvironment("GITHUB_PATH");
-  await appendFile(filePath, `${sysPath}${EOL}`);
+  await appendFile(getGitHubPath(), `${sysPath}${EOL}`);
 }
 
 /**
@@ -142,6 +126,5 @@ export function addPathSync(sysPath: string): void {
       ? `${sysPath}${delimiter}${process.env.PATH}`
       : sysPath;
 
-  const filePath = mustGetEnvironment("GITHUB_PATH");
-  appendFileSync(filePath, `${sysPath}${EOL}`);
+  appendFileSync(getGitHubPath(), `${sysPath}${EOL}`);
 }
