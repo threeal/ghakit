@@ -3,58 +3,91 @@ import { spawn } from "node:child_process";
 import { logCommand } from "./log.js";
 
 /**
+ * The output mode for stdout or stderr in {@link exec}.
+ *
+ * - `"pipe"` — pass the output to the current process.
+ * - `"capture"` — collect and return the output as a string.
+ * - `"silent"` — suppress the output entirely.
+ */
+export type OutputMode = "pipe" | "capture" | "silent";
+
+/**
  * Options for configuring the behaviour of {@link exec}.
  */
 export interface ExecOptions {
   /**
-   * When `true`, suppresses command logging and stdout/stderr piping.
+   * Output mode for the child process stdout (default: `"pipe"`).
+   *
+   * When `"pipe"`, the command is also logged via {@link logCommand}.
    */
-  silent?: boolean;
+  stdout?: OutputMode;
 
   /**
-   * When `true`, captures the process stdout and returns it in the resolved
-   * value.
+   * Output mode for the child process stderr (default: `"pipe"`).
    */
-  capture?: boolean;
+  stderr?: OutputMode;
 }
 
 /**
- * The result returned by {@link exec} when the `capture` option is enabled.
- */
-export interface ExecResult {
-  /**
-   * The captured standard output of the process.
-   */
-  stdout: string;
-}
-
-/**
- * Executes a command as a child process and returns the captured output.
+ * Executes a command as a child process, capturing both stdout and stderr.
  *
- * By default, logs the command using {@link logCommand} and pipes both stdout
- * and stderr to the current process streams. Pass `silent: true` to suppress
- * logging and piping. Stdout is also captured and returned in the resolved
- * value.
+ * Both streams are collected and returned as strings instead of being passed
+ * to the current process.
  *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
- * @param opts - Options for configuring the execution behaviour, with
- *   `capture` set to `true`.
- * @returns A promise that resolves to an {@link ExecResult} containing the
- *   captured stdout when the process exits successfully.
+ * @param opts - Options with both `stdout` and `stderr` set to `"capture"`.
+ * @returns A promise that resolves to an object containing the captured stdout
+ *   and stderr when the process exits successfully.
  */
 export function exec(
   command: string,
   args: string[],
-  opts: ExecOptions & { capture: true },
-): Promise<ExecResult>;
+  opts: ExecOptions & { stdout: "capture"; stderr: "capture" },
+): Promise<{ stdout: string; stderr: string }>;
+
+/**
+ * Executes a command as a child process, capturing stdout.
+ *
+ * stdout is collected and returned as a string instead of being passed to the
+ * current process. stderr defaults to `"pipe"`.
+ *
+ * @param command - The command to execute.
+ * @param args - The arguments to pass to the command.
+ * @param opts - Options with `stdout` set to `"capture"`.
+ * @returns A promise that resolves to an object containing the captured stdout
+ *   when the process exits successfully.
+ */
+export function exec(
+  command: string,
+  args: string[],
+  opts: ExecOptions & { stdout: "capture" },
+): Promise<{ stdout: string }>;
+
+/**
+ * Executes a command as a child process, capturing stderr.
+ *
+ * stderr is collected and returned as a string instead of being passed to the
+ * current process. stdout defaults to `"pipe"`.
+ *
+ * @param command - The command to execute.
+ * @param args - The arguments to pass to the command.
+ * @param opts - Options with `stderr` set to `"capture"`.
+ * @returns A promise that resolves to an object containing the captured stderr
+ *   when the process exits successfully.
+ */
+export function exec(
+  command: string,
+  args: string[],
+  opts: ExecOptions & { stderr: "capture" },
+): Promise<{ stderr: string }>;
 
 /**
  * Executes a command as a child process.
  *
- * By default, logs the command using {@link logCommand} and pipes both stdout
- * and stderr to the current process streams. Pass `silent: true` to suppress
- * logging and piping, or `capture: true` to also collect and return the stdout.
+ * By default, both stdout and stderr use `"pipe"` mode, passing the output to
+ * the current process. Set either to `"silent"` to suppress the output, or
+ * `"capture"` to collect and return it as a string.
  *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
@@ -71,26 +104,53 @@ export function exec(
   command: string,
   args: string[],
   opts?: ExecOptions,
-): Promise<ExecResult | void> {
+): Promise<{ stdout?: string; stderr?: string } | void> {
   return new Promise((resolve, reject) => {
-    const proc = spawn(command, args);
+    const stdoutMode = opts?.stdout ?? "pipe";
+    const stderrMode = opts?.stderr ?? "pipe";
 
-    if (!opts?.silent) {
+    if (stdoutMode === "pipe") {
       logCommand(command, ...args);
-      proc.stdout.pipe(process.stdout);
-      proc.stderr.pipe(process.stderr);
     }
 
-    const chunks: Uint8Array[] = [];
-    if (opts?.capture) {
-      proc.stdout.on("data", (chunk: Buffer) => chunks.push(chunk));
+    const proc = spawn(command, args, {
+      stdio: [
+        "inherit",
+        stdoutMode === "pipe"
+          ? "inherit"
+          : stdoutMode === "capture"
+            ? "pipe"
+            : "ignore",
+        stderrMode === "pipe"
+          ? "inherit"
+          : stderrMode === "capture"
+            ? "pipe"
+            : "ignore",
+      ],
+    });
+
+    const stdoutChunks: Uint8Array[] = [];
+    if (proc.stdout !== null) {
+      proc.stdout.on("data", (chunk: Buffer) => stdoutChunks.push(chunk));
+    }
+
+    const stderrChunks: Uint8Array[] = [];
+    if (proc.stderr !== null) {
+      proc.stderr.on("data", (chunk: Buffer) => stderrChunks.push(chunk));
     }
 
     proc.on("error", reject);
     proc.on("close", (code) => {
       if (code === 0) {
-        if (opts?.capture) {
-          resolve({ stdout: Buffer.concat(chunks).toString() });
+        if (stdoutMode === "capture" || stderrMode === "capture") {
+          const result: { stdout?: string; stderr?: string } = {};
+          if (stdoutMode === "capture") {
+            result.stdout = Buffer.concat(stdoutChunks).toString();
+          }
+          if (stderrMode === "capture") {
+            result.stderr = Buffer.concat(stderrChunks).toString();
+          }
+          resolve(result);
         } else {
           resolve();
         }

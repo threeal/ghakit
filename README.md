@@ -189,7 +189,7 @@ resumeCommands(endToken);
 
 ### Executing Commands
 
-The [`exec`](https://threeal.github.io/gha-utils/functions/exec.html) function runs a command as a child process. By default it logs the command via [`logCommand`](https://threeal.github.io/gha-utils/functions/logCommand.html) and pipes stdout and stderr to the current process streams:
+The [`exec`](https://threeal.github.io/gha-utils/functions/exec.html) function runs a command as a child process. By default, both stdout and stderr use `"pipe"` mode, passing the output to the current process:
 
 ```ts
 import { exec } from "gha-utils/exec";
@@ -197,30 +197,30 @@ import { exec } from "gha-utils/exec";
 await exec("node", ["--version"]);
 ```
 
-Pass `silent: true` to suppress logging and output piping:
+Set `stdout` or `stderr` to `"silent"` to suppress that stream:
 
 ```ts
 import { exec } from "gha-utils/exec";
 
-await exec("node", ["--version"], { silent: true });
+await exec("node", ["--version"], { stdout: "silent", stderr: "silent" });
 ```
 
-Pass `capture: true` to collect stdout and return it as a string:
+Set either to `"capture"` to collect and return it as a string:
 
 ```ts
 import { exec } from "gha-utils/exec";
 
-const { stdout } = await exec("node", ["--version"], { capture: true });
+const { stdout } = await exec("node", ["--version"], { stdout: "capture" });
 ```
 
-Both options can be combined:
+Both streams can be captured independently:
 
 ```ts
 import { exec } from "gha-utils/exec";
 
-const { stdout } = await exec("node", ["--version"], {
-  silent: true,
-  capture: true,
+const { stdout, stderr } = await exec("node", ["--version"], {
+  stdout: "capture",
+  stderr: "capture",
 });
 ```
 

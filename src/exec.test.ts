@@ -1,12 +1,4 @@
-import {
-  type MockInstance,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  test,
-  vi,
-} from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { exec } from "./exec.js";
 import { logCommand } from "./log.js";
@@ -15,22 +7,7 @@ vi.mock("./log.js");
 
 const script = "process.stdout.write('out'); process.stderr.write('err')";
 
-let stdoutWriteSpy: MockInstance;
-let stderrWriteSpy: MockInstance;
-
-beforeEach(() => {
-  vi.clearAllMocks();
-  stdoutWriteSpy = vi.spyOn(process.stdout, "write").mockReturnValue(true);
-  stderrWriteSpy = vi.spyOn(process.stderr, "write").mockReturnValue(true);
-});
-
-afterEach(() => vi.restoreAllMocks());
-
-function spyOutput(spy: MockInstance): string {
-  return spy.mock.calls
-    .map(([arg]) => (Buffer.isBuffer(arg) ? arg.toString() : String(arg)))
-    .join("");
-}
+beforeEach(() => vi.clearAllMocks());
 
 describe("exec", () => {
   test("rejects on failed command", async () => {
@@ -51,41 +28,57 @@ describe("exec", () => {
     expect(vi.mocked(logCommand).mock.calls).toStrictEqual([
       ["node", "-e", script],
     ]);
-
-    expect(spyOutput(stdoutWriteSpy)).toBe("out");
-    expect(spyOutput(stderrWriteSpy)).toBe("err");
   });
 
-  test("executes with capture option", async () => {
+  test("executes with stdout capture", async () => {
     await expect(
-      exec("node", ["-e", script], { capture: true }),
+      exec("node", ["-e", script], { stdout: "capture" }),
     ).resolves.toStrictEqual({ stdout: "out" });
+
+    expect(vi.mocked(logCommand)).not.toHaveBeenCalled();
+  });
+
+  test("executes with stderr capture", async () => {
+    await expect(
+      exec("node", ["-e", script], { stderr: "capture" }),
+    ).resolves.toStrictEqual({ stderr: "err" });
 
     expect(vi.mocked(logCommand).mock.calls).toStrictEqual([
       ["node", "-e", script],
     ]);
-
-    expect(spyOutput(stdoutWriteSpy)).toBe("out");
-    expect(spyOutput(stderrWriteSpy)).toBe("err");
   });
 
-  test("executes with silent option", async () => {
+  test("executes with both capture", async () => {
     await expect(
-      exec("node", ["-e", script], { silent: true }),
+      exec("node", ["-e", script], { stdout: "capture", stderr: "capture" }),
+    ).resolves.toStrictEqual({ stdout: "out", stderr: "err" });
+
+    expect(vi.mocked(logCommand)).not.toHaveBeenCalled();
+  });
+
+  test("executes with stdout silent", async () => {
+    await expect(
+      exec("node", ["-e", script], { stdout: "silent" }),
     ).resolves.toBeUndefined();
 
     expect(vi.mocked(logCommand)).not.toHaveBeenCalled();
-    expect(stdoutWriteSpy).not.toHaveBeenCalled();
-    expect(stderrWriteSpy).not.toHaveBeenCalled();
   });
 
-  test("executes with all options", async () => {
+  test("executes with stderr silent", async () => {
     await expect(
-      exec("node", ["-e", script], { silent: true, capture: true }),
-    ).resolves.toStrictEqual({ stdout: "out" });
+      exec("node", ["-e", script], { stderr: "silent" }),
+    ).resolves.toBeUndefined();
+
+    expect(vi.mocked(logCommand).mock.calls).toStrictEqual([
+      ["node", "-e", script],
+    ]);
+  });
+
+  test("executes with both silent", async () => {
+    await expect(
+      exec("node", ["-e", script], { stdout: "silent", stderr: "silent" }),
+    ).resolves.toBeUndefined();
 
     expect(vi.mocked(logCommand)).not.toHaveBeenCalled();
-    expect(stdoutWriteSpy).not.toHaveBeenCalled();
-    expect(stderrWriteSpy).not.toHaveBeenCalled();
   });
 });
