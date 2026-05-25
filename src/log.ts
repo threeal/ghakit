@@ -63,3 +63,21 @@ export function beginLogGroup(name: string): void {
 export function endLogGroup(): void {
   process.stdout.write(`::endgroup::${EOL}`);
 }
+
+/**
+ * Stops processing workflow commands in GitHub Actions until resumed.
+ *
+ * @param endToken - A token used to resume command processing.
+ */
+export function stopCommands(endToken: string): void {
+  process.stdout.write(`::stop-commands::${endToken}${EOL}`);
+}
+
+/**
+ * Resumes processing workflow commands in GitHub Actions.
+ *
+ * @param endToken - The token that was used to stop command processing.
+ */
+export function resumeCommands(endToken: string): void {
+  process.stdout.write(`::${endToken}::${EOL}`);
+}

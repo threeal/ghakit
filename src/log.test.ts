@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { EOL } from "node:os";
 import {
   type MockInstance,
@@ -17,6 +18,8 @@ import {
   logError,
   logInfo,
   logWarning,
+  resumeCommands,
+  stopCommands,
 } from "./log.js";
 
 let writeSpy: MockInstance;
@@ -92,5 +95,23 @@ describe("endLogGroup", () => {
   test("writes endgroup command to stdout", () => {
     endLogGroup();
     expect(writeSpy.mock.calls).toStrictEqual([[`::endgroup::${EOL}`]]);
+  });
+});
+
+describe("stopCommands", () => {
+  test("writes stop-commands command to stdout", () => {
+    const endToken = randomUUID();
+    stopCommands(endToken);
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [`::stop-commands::${endToken}${EOL}`],
+    ]);
+  });
+});
+
+describe("resumeCommands", () => {
+  test("writes resume token to stdout", () => {
+    const endToken = randomUUID();
+    resumeCommands(endToken);
+    expect(writeSpy.mock.calls).toStrictEqual([[`::${endToken}::${EOL}`]]);
   });
 });
