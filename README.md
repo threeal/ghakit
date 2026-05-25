@@ -116,6 +116,19 @@ endLogGroup();
 logInfo("this message is outside a group");
 ```
 
+### Stopping and Resuming Workflow Commands
+
+Workflow command processing can be temporarily halted using [`stopCommands`](https://threeal.github.io/gha-utils/functions/stopCommands.html) and then resumed using [`resumeCommands`](https://threeal.github.io/gha-utils/functions/resumeCommands.html). Any output between these calls will not be interpreted as workflow commands:
+
+```ts
+import { randomUUID } from "node:crypto";
+
+const endToken = randomUUID();
+stopCommands(endToken);
+// Output here is not interpreted as workflow commands
+resumeCommands(endToken);
+```
+
 ### Executing Commands
 
 The [`exec`](https://threeal.github.io/gha-utils/functions/exec.html) function runs a command as a child process. By default it logs the command via [`logCommand`](https://threeal.github.io/gha-utils/functions/logCommand.html) and pipes stdout and stderr to the current process streams:

@@ -21,6 +21,8 @@ export {
   logError,
   logInfo,
   logWarning,
+  resumeCommands,
+  stopCommands,
 } from "./log.js";
 
 export {
