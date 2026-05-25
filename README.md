@@ -189,7 +189,7 @@ resumeCommands(endToken);
 
 ### Executing Commands
 
-The [`exec`](https://threeal.github.io/gha-utils/functions/exec.html) function runs a command as a child process. By default, both stdout and stderr use `"pipe"` mode, passing the output to the current process:
+The [`exec`](https://threeal.github.io/gha-utils/functions/exec.html) function runs a command as a child process. By default, both stdout and stderr use `"inherit"` mode, passing the output to the current process:
 
 ```ts
 import { exec } from "gha-utils/exec";

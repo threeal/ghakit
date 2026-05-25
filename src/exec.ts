@@ -5,25 +5,25 @@ import { logCommand } from "./log.js";
 /**
  * The output mode for stdout or stderr in {@link exec}.
  *
- * - `"pipe"` — pass the output to the current process.
+ * - `"inherit"` — pass the output to the current process.
  * - `"capture"` — collect and return the output as a string.
  * - `"silent"` — suppress the output entirely.
  */
-export type OutputMode = "pipe" | "capture" | "silent";
+export type OutputMode = "inherit" | "capture" | "silent";
 
 /**
  * Options for configuring the behaviour of {@link exec}.
  */
 export interface ExecOptions {
   /**
-   * Output mode for the child process stdout (default: `"pipe"`).
+   * Output mode for the child process stdout (default: `"inherit"`).
    *
-   * When `"pipe"`, the command is also logged via {@link logCommand}.
+   * When `"inherit"`, the command is also logged via {@link logCommand}.
    */
   stdout?: OutputMode;
 
   /**
-   * Output mode for the child process stderr (default: `"pipe"`).
+   * Output mode for the child process stderr (default: `"inherit"`).
    */
   stderr?: OutputMode;
 }
@@ -50,7 +50,7 @@ export function exec(
  * Executes a command as a child process, capturing stdout.
  *
  * stdout is collected and returned as a string instead of being passed to the
- * current process. stderr defaults to `"pipe"`.
+ * current process. stderr defaults to `"inherit"`.
  *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
@@ -68,7 +68,7 @@ export function exec(
  * Executes a command as a child process, capturing stderr.
  *
  * stderr is collected and returned as a string instead of being passed to the
- * current process. stdout defaults to `"pipe"`.
+ * current process. stdout defaults to `"inherit"`.
  *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
@@ -85,8 +85,8 @@ export function exec(
 /**
  * Executes a command as a child process.
  *
- * By default, both stdout and stderr use `"pipe"` mode, passing the output to
- * the current process. Set either to `"silent"` to suppress the output, or
+ * By default, both stdout and stderr use `"inherit"` mode, passing the output
+ * to the current process. Set either to `"silent"` to suppress the output, or
  * `"capture"` to collect and return it as a string.
  *
  * @param command - The command to execute.
@@ -106,22 +106,22 @@ export function exec(
   opts?: ExecOptions,
 ): Promise<{ stdout?: string; stderr?: string } | void> {
   return new Promise((resolve, reject) => {
-    const stdoutMode = opts?.stdout ?? "pipe";
-    const stderrMode = opts?.stderr ?? "pipe";
+    const stdoutMode = opts?.stdout ?? "inherit";
+    const stderrMode = opts?.stderr ?? "inherit";
 
-    if (stdoutMode === "pipe") {
+    if (stdoutMode === "inherit") {
       logCommand(command, ...args);
     }
 
     const proc = spawn(command, args, {
       stdio: [
         "inherit",
-        stdoutMode === "pipe"
+        stdoutMode === "inherit"
           ? "inherit"
           : stdoutMode === "capture"
             ? "pipe"
             : "ignore",
-        stderrMode === "pipe"
+        stderrMode === "inherit"
           ? "inherit"
           : stderrMode === "capture"
             ? "pipe"
