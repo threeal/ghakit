@@ -64,6 +64,30 @@ await addPath("path/to/an/executable");
 addPathSync("path/to/another/executable");
 ```
 
+### Accessing GitHub Actions Variables
+
+All [default GitHub Actions variables](https://docs.github.com/en/actions/reference/workflows-and-actions/variables) are available as typed getter functions. Boolean variables return `boolean`, numeric count/day variables return `number`, and all others (including ID variables) return `string`:
+
+```ts
+// Context
+const repo = getGitHubRepository(); // e.g. "octocat/Hello-World"
+const sha = getGitHubSha(); // triggering commit SHA
+const refName = getGitHubRefName(); // e.g. "main"
+const eventName = getGitHubEventName(); // e.g. "push"
+const isCI = getCI(); // true when running in CI
+const isProtected = getGitHubRefProtected(); // true if branch is protected
+
+// Run metadata
+const runId = getGitHubRunId(); // unique run ID (string)
+const runNumber = getGitHubRunNumber(); // sequential run number (number)
+const runAttempt = getGitHubRunAttempt(); // attempt count (number)
+
+// Runner info
+const os = getRunnerOs(); // "Linux", "Windows", or "macOS"
+const arch = getRunnerArch(); // "X64", "ARM64", etc.
+const isDebug = getRunnerDebug(); // true if debug logging is enabled
+```
+
 ### Logging Messages
 
 There are various ways to log messages in GitHub Actions, including [`logInfo`](https://threeal.github.io/gha-utils/functions/logInfo.html) for logging an informational message, [`logDebug`](https://threeal.github.io/gha-utils/functions/logDebug.html) for logging a debug message, [`logWarning`](https://threeal.github.io/gha-utils/functions/logWarning.html) for logging a warning message, [`logError`](https://threeal.github.io/gha-utils/functions/logError.html) for logging an error message, and [`logCommand`](https://threeal.github.io/gha-utils/functions/logCommand.html) for logging a command line message:
