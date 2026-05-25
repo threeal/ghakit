@@ -87,7 +87,7 @@ export function exec(
     }
 
     proc.on("error", reject);
-    proc.on("close", (code: number) => {
+    proc.on("close", (code) => {
       if (code === 0) {
         if (opts?.capture) {
           resolve({ stdout: Buffer.concat(chunks).toString() });
@@ -96,7 +96,11 @@ export function exec(
         }
       } else {
         reject(
-          new Error(`Process "${command}" exited with code ${code.toString()}`),
+          new Error(
+            code !== null
+              ? `Process "${command}" exited with code ${code.toString()}`
+              : `Process "${command}" was terminated by a signal`,
+          ),
         );
       }
     });

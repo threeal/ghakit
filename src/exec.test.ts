@@ -39,6 +39,12 @@ describe("exec", () => {
     );
   });
 
+  test("rejects on signal-killed process", async () => {
+    await expect(
+      exec("node", ["-e", "process.kill(process.pid, 'SIGTERM')"]),
+    ).rejects.toThrow('Process "node" was terminated by a signal');
+  });
+
   test("executes without options", async () => {
     await expect(exec("node", ["-e", script])).resolves.toBeUndefined();
 
