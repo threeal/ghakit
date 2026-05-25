@@ -9,7 +9,7 @@ pnpm tsc        # type-check (no emit)
 pnpm eslint .   # lint
 pnpm prettier --write .  # format
 pnpm test       # run tests with coverage
-pnpm test src/env.test.ts  # run a single test file
+pnpm test src/io.test.ts  # run a single test file
 pnpm prepack    # compile to dist/
 ```
 
@@ -21,8 +21,8 @@ Pre-commit hooks are managed by [Lefthook](https://lefthook.dev/), set up with `
 
 **Source files and subpath exports** (in `src/`):
 
-- `env.ts` — reads inputs from `INPUT_*` env vars and appends key-value pairs to the files pointed to by `GITHUB_OUTPUT`, `GITHUB_STATE`, `GITHUB_ENV`, and `GITHUB_PATH`. Every mutating function has both an async and a sync variant.
 - `exec.ts` — wraps Node's `child_process.spawn` in a promise. Logs the command via `logCommand` and pipes stdout/stderr by default. Supports `silent` (suppress logging and piping) and `capture` (collect stdout and return it as a string) options.
+- `io.ts` — reads inputs from `INPUT_*` env vars and appends key-value pairs to the files pointed to by `GITHUB_OUTPUT`, `GITHUB_STATE`, `GITHUB_ENV`, and `GITHUB_PATH`. Every mutating function has both an async and a sync variant.
 - `log.ts` — writes GitHub Actions workflow commands (`::debug::`, `::notice::`, `::warning::`, `::error::`, `::add-mask::`, `::group::`, `::stop-commands::`, etc.) to stdout. `logNotice`, `logWarning`, and `logError` accept an optional `AnnotationOptions` object (`title`, `file`, `line`, `endLine`, `col`, `endColumn`) that is serialized as `key=value,...` between the command name and message.
 - `vars.ts` — exposes typed getter functions for every [default GitHub Actions variable](https://docs.github.com/en/actions/reference/workflows-and-actions/variables) (e.g. `getGitHubRepository()`, `getRunnerOs()`). Boolean variables return `boolean`, numeric count/day variables (`getGitHubRetentionDays`, `getGitHubRunAttempt`, `getGitHubRunNumber`) return `number`, and all others (including ID variables) return `string`.
 

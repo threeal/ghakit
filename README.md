@@ -26,7 +26,7 @@ npm install gha-utils
 GitHub Actions inputs can be retrieved using the [`getInput`](https://threeal.github.io/gha-utils/functions/getInput.html) function, which returns a trimmed string or an empty string if the input is not specified. GitHub Actions outputs can be set using the [`setOutput`](https://threeal.github.io/gha-utils/functions/setOutput.html) or [`setOutputSync`](https://threeal.github.io/gha-utils/functions/setOutputSync.html) functions:
 
 ```ts
-import { getInput, setOutput, setOutputSync } from "gha-utils/env";
+import { getInput, setOutput, setOutputSync } from "gha-utils/io";
 
 const input = getInput("input-name");
 
@@ -39,7 +39,7 @@ setOutputSync("another-output-name", "another value");
 GitHub Actions states are useful for passing data between the pre, main, and post steps of the same GitHub Action. States can be set using the [`setState`](https://threeal.github.io/gha-utils/functions/setState.html) or [`setStateSync`](https://threeal.github.io/gha-utils/functions/setStateSync.html) functions:
 
 ```ts
-import { setState, setStateSync } from "gha-utils/env";
+import { setState, setStateSync } from "gha-utils/io";
 
 await setState("state-name", "a value");
 setStateSync("another-state-name", "another value");
@@ -48,7 +48,7 @@ setStateSync("another-state-name", "another value");
 They can then be retrieved in the current or other steps using the [`getState`](https://threeal.github.io/gha-utils/functions/getState.html) function:
 
 ```ts
-import { getState } from "gha-utils/env";
+import { getState } from "gha-utils/io";
 
 const state = getState("state-name");
 ```
@@ -58,7 +58,7 @@ const state = getState("state-name");
 Environment variables in GitHub Actions can be set using the [`setEnv`](https://threeal.github.io/gha-utils/functions/setEnv.html) or [`setEnvSync`](https://threeal.github.io/gha-utils/functions/setEnvSync.html) functions, which sets the environment variables in the current step and exports them to the next steps:
 
 ```ts
-import { setEnv, setEnvSync } from "gha-utils/env";
+import { setEnv, setEnvSync } from "gha-utils/io";
 
 await setEnv("AN_ENV", "a value");
 setEnvSync("ANOTHER_ENV", "another value");
@@ -69,7 +69,7 @@ setEnvSync("ANOTHER_ENV", "another value");
 System paths in the GitHub Actions environment can be added using the [`addPath`](https://threeal.github.io/gha-utils/functions/addPath.html) or [`addPathSync`](https://threeal.github.io/gha-utils/functions/addPathSync.html) functions, which prepends the given path to the system path. These functions are useful if an action is adding a new executable located in a custom path:
 
 ```ts
-import { addPath, addPathSync } from "gha-utils/env";
+import { addPath, addPathSync } from "gha-utils/io";
 
 await addPath("path/to/an/executable");
 addPathSync("path/to/another/executable");
@@ -156,7 +156,7 @@ import { logError, logNotice, logWarning } from "gha-utils/log";
 
 logNotice("something to note", { file: "src/index.ts", line: 42 });
 logWarning("deprecated usage", { title: "Deprecation" });
-logError(err, { file: "src/index.ts", line: 5, col: 1 });
+logError("something went wrong", { file: "src/index.ts", line: 5, col: 1 });
 ```
 
 ### Grouping Logs

@@ -22,7 +22,7 @@ import {
   setOutputSync,
   setState,
   setStateSync,
-} from "./env.js";
+} from "./io.js";
 import {
   getGitHubEnv,
   getGitHubOutput,
