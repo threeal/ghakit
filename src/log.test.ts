@@ -11,6 +11,7 @@ import {
 } from "vitest";
 
 import {
+  addLogMask,
   beginLogGroup,
   endLogGroup,
   logCommand,
@@ -80,6 +81,15 @@ describe("logCommand", () => {
     logCommand("cmd", "arg0", "arg1", "arg2");
     expect(writeSpy.mock.calls).toStrictEqual([
       [`[command]cmd arg0 arg1 arg2${EOL}`],
+    ]);
+  });
+});
+
+describe("addLogMask", () => {
+  test("writes add-mask command to stdout", () => {
+    addLogMask("a secret value");
+    expect(writeSpy.mock.calls).toStrictEqual([
+      [`::add-mask::a secret value${EOL}`],
     ]);
   });
 });
