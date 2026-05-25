@@ -14,15 +14,18 @@ export {
 } from "./env.js";
 
 export {
+  addLogMask,
   beginLogGroup,
   endLogGroup,
   logCommand,
   logDebug,
   logError,
   logInfo,
+  logNotice,
   logWarning,
   resumeCommands,
   stopCommands,
+  type AnnotationOptions,
 } from "./log.js";
 
 export {

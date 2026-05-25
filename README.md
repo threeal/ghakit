@@ -99,17 +99,26 @@ addLogMask(process.env.MY_SECRET);
 
 ### Logging Messages
 
-There are various ways to log messages in GitHub Actions, including [`logInfo`](https://threeal.github.io/gha-utils/functions/logInfo.html) for logging an informational message, [`logDebug`](https://threeal.github.io/gha-utils/functions/logDebug.html) for logging a debug message, [`logWarning`](https://threeal.github.io/gha-utils/functions/logWarning.html) for logging a warning message, [`logError`](https://threeal.github.io/gha-utils/functions/logError.html) for logging an error message, and [`logCommand`](https://threeal.github.io/gha-utils/functions/logCommand.html) for logging a command line message:
+There are various ways to log messages in GitHub Actions, including [`logInfo`](https://threeal.github.io/gha-utils/functions/logInfo.html) for logging an informational message, [`logDebug`](https://threeal.github.io/gha-utils/functions/logDebug.html) for logging a debug message, [`logNotice`](https://threeal.github.io/gha-utils/functions/logNotice.html) for logging a notice message, [`logWarning`](https://threeal.github.io/gha-utils/functions/logWarning.html) for logging a warning message, [`logError`](https://threeal.github.io/gha-utils/functions/logError.html) for logging an error message, and [`logCommand`](https://threeal.github.io/gha-utils/functions/logCommand.html) for logging a command line message:
 
 ```ts
 try {
   logInfo("an information");
   logDebug("a debug");
+  logNotice("a notice");
   logWarning("a warning");
   logCommand("command", "arg0", "arg1", "arg2");
 } catch (err) {
   logError(err);
 }
+```
+
+`logNotice`, `logWarning`, and `logError` accept an optional [`AnnotationOptions`](https://threeal.github.io/gha-utils/interfaces/AnnotationOptions.html) object to attach annotation metadata (source file, line number, etc.) to the log entry:
+
+```ts
+logNotice("something to note", { file: "src/index.ts", line: 42 });
+logWarning("deprecated usage", { title: "Deprecation" });
+logError(err, { file: "src/index.ts", line: 5, col: 1 });
 ```
 
 ### Grouping Logs
