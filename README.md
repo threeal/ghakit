@@ -9,6 +9,7 @@ A minimalistic utility package for developing [GitHub Actions](https://github.co
 - Getting and setting states
 - Setting environment variables and appending system paths
 - Logging various kinds of messages
+- Executing commands as child processes
 
 ## Installation
 
@@ -113,6 +114,35 @@ logInfo("this message is inside a group");
 endLogGroup();
 
 logInfo("this message is outside a group");
+```
+
+### Executing Commands
+
+The [`exec`](https://threeal.github.io/gha-utils/functions/exec.html) function runs a command as a child process. By default it logs the command via [`logCommand`](https://threeal.github.io/gha-utils/functions/logCommand.html) and pipes stdout and stderr to the current process streams:
+
+```ts
+await exec("node", ["--version"]);
+```
+
+Pass `silent: true` to suppress logging and output piping:
+
+```ts
+await exec("node", ["--version"], { silent: true });
+```
+
+Pass `capture: true` to collect stdout and return it as a string:
+
+```ts
+const { stdout } = await exec("node", ["--version"], { capture: true });
+```
+
+Both options can be combined:
+
+```ts
+const { stdout } = await exec("node", ["--version"], {
+  silent: true,
+  capture: true,
+});
 ```
 
 ## License

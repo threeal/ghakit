@@ -1,3 +1,5 @@
+export { exec, type ExecOptions, type ExecResult } from "./exec.js";
+
 export {
   addPath,
   addPathSync,
