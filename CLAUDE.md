@@ -17,9 +17,9 @@ Pre-commit hooks are managed by [Lefthook](https://lefthook.dev/), set up with `
 
 ## Architecture
 
-`gha-utils` is a zero-runtime-dependency TypeScript library that wraps GitHub Actions' file-based APIs and workflow command syntax.
+`gha-utils` is a zero-runtime-dependency TypeScript library that wraps GitHub Actions' file-based APIs and workflow command syntax. It is published as four subpath exports, each corresponding to a source file.
 
-**Source files** (in `src/`):
+**Source files and subpath exports** (in `src/`):
 
 - `env.ts` — reads inputs from `INPUT_*` env vars and appends key-value pairs to the files pointed to by `GITHUB_OUTPUT`, `GITHUB_STATE`, `GITHUB_ENV`, and `GITHUB_PATH`. Every mutating function has both an async and a sync variant.
 - `exec.ts` — wraps Node's `child_process.spawn` in a promise. Logs the command via `logCommand` and pipes stdout/stderr by default. Supports `silent` (suppress logging and piping) and `capture` (collect stdout and return it as a string) options.
