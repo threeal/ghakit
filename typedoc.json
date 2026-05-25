@@ -1,4 +1,4 @@
 {
-  "entryPoints": ["src/index.ts"],
+  "entryPoints": ["src/exec.ts", "src/io.ts", "src/log.ts", "src/vars.ts"],
   "treatWarningsAsErrors": true
 }

@@ -15,9 +15,25 @@
   "repository": "github:threeal/gha-utils",
   "license": "MIT",
   "author": "Alfi Maulana <alfi.maulana.f@gmail.com>",
+  "exports": {
+    "./exec": {
+      "default": "./dist/exec.js",
+      "types": "./dist/exec.d.ts"
+    },
+    "./io": {
+      "default": "./dist/io.js",
+      "types": "./dist/io.d.ts"
+    },
+    "./log": {
+      "default": "./dist/log.js",
+      "types": "./dist/log.d.ts"
+    },
+    "./vars": {
+      "default": "./dist/vars.js",
+      "types": "./dist/vars.d.ts"
+    }
+  },
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
