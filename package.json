@@ -1,18 +1,18 @@
 {
-  "name": "gha-utils",
+  "name": "actkit",
   "version": "0.4.1",
-  "description": "A utility library for building GitHub Actions with no runtime dependencies",
+  "description": "A toolkit for building GitHub Actions with no runtime dependencies",
   "keywords": [
     "github",
     "actions",
-    "utility"
+    "toolkit"
   ],
-  "homepage": "https://threeal.github.io/gha-utils",
+  "homepage": "https://threeal.github.io/actkit",
   "bugs": {
-    "url": "https://github.com/threeal/gha-utils/issues",
+    "url": "https://github.com/threeal/actkit/issues",
     "email": "alfi.maulana.f@gmail.com"
   },
-  "repository": "github:threeal/gha-utils",
+  "repository": "github:threeal/actkit",
   "license": "MIT",
   "author": "Alfi Maulana <alfi.maulana.f@gmail.com>",
   "exports": {
