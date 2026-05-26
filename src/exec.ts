@@ -1,7 +1,5 @@
 import { spawn } from "node:child_process";
 
-import { logCommand } from "./log.js";
-
 /**
  * The output mode for stdout or stderr in {@link exec}.
  *
@@ -17,8 +15,6 @@ export type OutputMode = "inherit" | "capture" | "silent";
 export interface ExecOptions {
   /**
    * Output mode for the child process stdout (default: `"inherit"`).
-   *
-   * When `"inherit"`, the command is also logged via {@link logCommand}.
    */
   stdout?: OutputMode;
 
@@ -108,10 +104,6 @@ export function exec(
   return new Promise((resolve, reject) => {
     const stdoutMode = opts?.stdout ?? "inherit";
     const stderrMode = opts?.stderr ?? "inherit";
-
-    if (stdoutMode === "inherit") {
-      logCommand(command, ...args);
-    }
 
     const proc = spawn(command, args, {
       stdio: [
