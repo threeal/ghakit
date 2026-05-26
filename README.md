@@ -10,12 +10,12 @@ npm install actkit
 
 ## Modules
 
-| Import                        | Purpose                                                             |
-| ----------------------------- | ------------------------------------------------------------------- |
-| [`actkit/io`](#actkitio)      | Read inputs; write outputs, state, env vars, and system paths       |
-| [`actkit/log`](#actkitlog)    | Log messages, mask secrets, group output, control workflow commands |
-| [`actkit/exec`](#actkitexec)  | Spawn child processes with stdout/stderr capture or suppression     |
-| [`actkit/vars`](#actikitvars) | Typed getters for all default GitHub Actions variables              |
+| Import                       | Purpose                                                             |
+| ---------------------------- | ------------------------------------------------------------------- |
+| [`actkit/io`](#actkitio)     | Read inputs; write outputs, state, env vars, and system paths       |
+| [`actkit/log`](#actkitlog)   | Log messages, mask secrets, group output, control workflow commands |
+| [`actkit/exec`](#actkitexec) | Spawn child processes with stdout/stderr capture or suppression     |
+| [`actkit/vars`](#actkitvars) | Typed getters for all default GitHub Actions variables              |
 
 Full API reference: [threeal.github.io/actkit](https://threeal.github.io/actkit)
 
