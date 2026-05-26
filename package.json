@@ -1,5 +1,5 @@
 {
-  "name": "actkit",
+  "name": "ghakit",
   "version": "1.0.0",
   "description": "A toolkit for building GitHub Actions with no runtime dependencies",
   "keywords": [
@@ -7,12 +7,12 @@
     "actions",
     "toolkit"
   ],
-  "homepage": "https://threeal.github.io/actkit",
+  "homepage": "https://threeal.github.io/ghakit",
   "bugs": {
-    "url": "https://github.com/threeal/actkit/issues",
+    "url": "https://github.com/threeal/ghakit/issues",
     "email": "alfi.maulana.f@gmail.com"
   },
-  "repository": "github:threeal/actkit",
+  "repository": "github:threeal/ghakit",
   "license": "MIT",
   "author": "Alfi Maulana <alfi.maulana.f@gmail.com>",
   "exports": {
