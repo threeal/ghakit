@@ -1,90 +1,222 @@
-# GitHub Actions Utilities
+# gha-utils
 
-A minimalistic utility package for developing [GitHub Actions](https://github.com/features/actions).
-
-## Key Features
-
-- ES Module support
-- Getting inputs and setting outputs
-- Getting and setting states
-- Setting environment variables and appending system paths
-- Logging various kinds of messages
-- Executing commands as child processes
+A TypeScript utility library for building [GitHub Actions](https://github.com/features/actions). Wraps GitHub Actions' file-based and stdout-based workflow APIs into typed, promise-friendly functions, with no runtime dependencies.
 
 ## Installation
-
-This project is available as an [npm](https://www.npmjs.com/) package under the name [gha-utils](https://www.npmjs.com/package/gha-utils):
 
 ```sh
 npm install gha-utils
 ```
 
-## Usage Guide
+## Modules
 
-### Getting Inputs and Setting Outputs
+| Import                             | Purpose                                                             |
+| ---------------------------------- | ------------------------------------------------------------------- |
+| [`gha-utils/io`](#gha-utilsio)     | Read inputs; write outputs, state, env vars, and system paths       |
+| [`gha-utils/log`](#gha-utilslog)   | Log messages, mask secrets, group output, control workflow commands |
+| [`gha-utils/exec`](#gha-utilsexec) | Spawn child processes with stdout/stderr capture or suppression     |
+| [`gha-utils/vars`](#gha-utilsvars) | Typed getters for all default GitHub Actions variables              |
 
-GitHub Actions inputs can be retrieved using the [`getInput`](https://threeal.github.io/gha-utils/functions/getInput.html) function, which returns a trimmed string or an empty string if the input is not specified. GitHub Actions outputs can be set using the [`setOutput`](https://threeal.github.io/gha-utils/functions/setOutput.html) or [`setOutputSync`](https://threeal.github.io/gha-utils/functions/setOutputSync.html) functions:
+Full API reference: [threeal.github.io/gha-utils](https://threeal.github.io/gha-utils)
 
-```ts
-import { getInput, setOutput, setOutputSync } from "gha-utils/io";
+---
 
-const input = getInput("input-name");
+## `gha-utils/io`
 
-await setOutput("output-name", "a value");
-setOutputSync("another-output-name", "another value");
-```
-
-### Getting and Setting States
-
-GitHub Actions states are useful for passing data between the pre, main, and post steps of the same GitHub Action. States can be set using the [`setState`](https://threeal.github.io/gha-utils/functions/setState.html) or [`setStateSync`](https://threeal.github.io/gha-utils/functions/setStateSync.html) functions:
+### Reading inputs
 
 ```ts
-import { setState, setStateSync } from "gha-utils/io";
+import { getInput } from "gha-utils/io";
 
-await setState("state-name", "a value");
-setStateSync("another-state-name", "another value");
+const token = getInput("token"); // returns "" if the input is not set
 ```
 
-They can then be retrieved in the current or other steps using the [`getState`](https://threeal.github.io/gha-utils/functions/getState.html) function:
+### Writing outputs
 
 ```ts
-import { getState } from "gha-utils/io";
+import { setOutput } from "gha-utils/io";
 
-const state = getState("state-name");
+await setOutput("result", "success");
 ```
 
-### Setting Environment Variables
+A synchronous variant [`setOutputSync`](https://threeal.github.io/gha-utils/functions/io.setOutputSync.html) is also available.
 
-Environment variables in GitHub Actions can be set using the [`setEnv`](https://threeal.github.io/gha-utils/functions/setEnv.html) or [`setEnvSync`](https://threeal.github.io/gha-utils/functions/setEnvSync.html) functions, which sets the environment variables in the current step and exports them to the next steps:
+### State (pre/post steps)
+
+State persists across the pre, main, and post steps of the same action.
 
 ```ts
-import { setEnv, setEnvSync } from "gha-utils/io";
+import { getState, setState } from "gha-utils/io";
 
-await setEnv("AN_ENV", "a value");
-setEnvSync("ANOTHER_ENV", "another value");
+// In the main step:
+await setState("cache-key", key);
+
+// In the post step:
+const cachedKey = getState("cache-key");
 ```
 
-### Adding System Paths
+A synchronous variant [`setStateSync`](https://threeal.github.io/gha-utils/functions/io.setStateSync.html) is also available.
 
-System paths in the GitHub Actions environment can be added using the [`addPath`](https://threeal.github.io/gha-utils/functions/addPath.html) or [`addPathSync`](https://threeal.github.io/gha-utils/functions/addPathSync.html) functions, which prepends the given path to the system path. These functions are useful if an action is adding a new executable located in a custom path:
+### Environment variables
+
+Sets the variable in the current process and exports it to subsequent steps.
 
 ```ts
-import { addPath, addPathSync } from "gha-utils/io";
+import { setEnv } from "gha-utils/io";
 
-await addPath("path/to/an/executable");
-addPathSync("path/to/another/executable");
+await setEnv("MY_VAR", "value");
 ```
 
-### Accessing GitHub Actions Variables
+A synchronous variant [`setEnvSync`](https://threeal.github.io/gha-utils/functions/io.setEnvSync.html) is also available.
 
-All [default GitHub Actions variables](https://docs.github.com/en/actions/reference/workflows-and-actions/variables) are available as typed getter functions. Boolean variables return `boolean`, numeric count/day variables return `number`, and all others (including ID variables) return `string`:
+### System path
+
+Prepends the path to `PATH` in the current process and exports it to subsequent steps.
+
+```ts
+import { addPath } from "gha-utils/io";
+
+await addPath("/usr/local/custom/bin");
+```
+
+A synchronous variant [`addPathSync`](https://threeal.github.io/gha-utils/functions/io.addPathSync.html) is also available.
+
+---
+
+## `gha-utils/log`
+
+### Message levels
+
+```ts
+import {
+  logDebug,
+  logError,
+  logInfo,
+  logNotice,
+  logWarning,
+} from "gha-utils/log";
+
+logInfo("starting task");
+logDebug("verbose detail"); // only shown when debug logging is enabled
+logNotice("something worth noting");
+logWarning("non-fatal issue");
+logError("something failed");
+```
+
+`logError` accepts `unknown`, matching the type of a caught exception, so it can be passed directly in a `catch` block:
+
+```ts
+try {
+  // ...
+} catch (err) {
+  logError(err);
+}
+```
+
+`logNotice`, `logWarning`, and `logError` accept an optional [`AnnotationOptions`](https://threeal.github.io/gha-utils/interfaces/log.AnnotationOptions.html) to pin the message to a file location:
+
+```ts
+logError("type mismatch", { file: "src/index.ts", line: 42, col: 5 });
+logWarning("deprecated call", {
+  title: "Deprecation Warning",
+  file: "src/index.ts",
+  line: 10,
+});
+logNotice("review this", { file: "src/index.ts", line: 1 });
+```
+
+### Logging commands
+
+Outputs a `[command]` line to mark shell command execution in the workflow log.
+
+```ts
+import { logCommand } from "gha-utils/log";
+
+logCommand("git", "fetch", "--all"); // renders as [command]git fetch --all
+```
+
+### Masking secrets
+
+Any subsequent occurrence of the masked value in the workflow logs is replaced with `***`.
+
+```ts
+import { addLogMask } from "gha-utils/log";
+
+addLogMask(process.env.MY_SECRET ?? "");
+```
+
+### Log groups
+
+All messages logged between `beginLogGroup` and `endLogGroup` are nested inside a collapsible section.
+
+```ts
+import { beginLogGroup, endLogGroup, logInfo } from "gha-utils/log";
+
+beginLogGroup("build output");
+logInfo("compiling...");
+endLogGroup();
+```
+
+### Stopping workflow command processing
+
+Output between `stopCommands` and `resumeCommands` is not interpreted as workflow commands.
+
+```ts
+import { randomUUID } from "node:crypto";
+import { resumeCommands, stopCommands } from "gha-utils/log";
+
+const token = randomUUID();
+stopCommands(token);
+// Lines here are printed verbatim
+resumeCommands(token);
+```
+
+---
+
+## `gha-utils/exec`
+
+Runs a command as a child process. By default, passes stdout and stderr to the current process. Rejects with an `Error` if the process fails to spawn, exits with a non-zero code, or is killed by a signal.
+
+```ts
+import { exec } from "gha-utils/exec";
+
+await exec("git", ["fetch", "--all"]);
+```
+
+Set `stdout` or `stderr` to `"silent"` to suppress that stream:
+
+```ts
+await exec("git", ["fetch", "--all"], { stderr: "silent" });
+```
+
+Set either to `"capture"` to collect and return it as a string:
+
+```ts
+const { stdout } = await exec("git", ["rev-parse", "HEAD"], {
+  stdout: "capture",
+});
+```
+
+Both streams can also be captured at once:
+
+```ts
+const { stdout, stderr } = await exec("git", ["rev-parse", "HEAD"], {
+  stdout: "capture",
+  stderr: "capture",
+});
+```
+
+---
+
+## `gha-utils/vars`
+
+Typed getters for every [default GitHub Actions variable](https://docs.github.com/en/actions/reference/workflows-and-actions/variables). Boolean variables return `boolean`, numeric count/day variables return `number`, context-specific variables (only set in certain events or action types) return `string | undefined`, and all others return `string`.
 
 ```ts
 import {
   getCI,
   getGitHubEventName,
   getGitHubRefName,
-  getGitHubRefProtected,
   getGitHubRepository,
   getGitHubRunAttempt,
   getGitHubRunId,
@@ -95,137 +227,25 @@ import {
   getRunnerOs,
 } from "gha-utils/vars";
 
-// Context
-const repo = getGitHubRepository(); // e.g. "octocat/Hello-World"
+const repo = getGitHubRepository(); // "owner/repo"
 const sha = getGitHubSha(); // triggering commit SHA
-const refName = getGitHubRefName(); // e.g. "main"
-const eventName = getGitHubEventName(); // e.g. "push"
-const isCI = getCI(); // true when running in CI
-const isProtected = getGitHubRefProtected(); // true if branch is protected
-
-// Run metadata
-const runId = getGitHubRunId(); // unique run ID (string)
-const runNumber = getGitHubRunNumber(); // sequential run number (number)
-const runAttempt = getGitHubRunAttempt(); // attempt count (number)
-
-// Runner info
+const ref = getGitHubRefName(); // e.g. "main"
+const event = getGitHubEventName(); // e.g. "push"
+const isCI = getCI(); // boolean
+const runId = getGitHubRunId(); // e.g. "1234567890"
+const runNumber = getGitHubRunNumber(); // number
+const runAttempt = getGitHubRunAttempt(); // number
 const os = getRunnerOs(); // "Linux", "Windows", or "macOS"
 const arch = getRunnerArch(); // "X64", "ARM64", etc.
-const isDebug = getRunnerDebug(); // true if debug logging is enabled
+const isDebug = getRunnerDebug(); // boolean
 ```
 
-### Masking Values in Logs
+For the full list of available getters, see the [API reference](https://threeal.github.io/gha-utils/modules/vars.html).
 
-Sensitive values can be masked using the [`addLogMask`](https://threeal.github.io/gha-utils/functions/addLogMask.html) function. Any subsequent occurrence of the masked value in the workflow logs will be replaced with `***`:
-
-```ts
-import { addLogMask } from "gha-utils/log";
-
-addLogMask(process.env.MY_SECRET);
-```
-
-### Logging Messages
-
-There are various ways to log messages in GitHub Actions, including [`logInfo`](https://threeal.github.io/gha-utils/functions/logInfo.html) for logging an informational message, [`logDebug`](https://threeal.github.io/gha-utils/functions/logDebug.html) for logging a debug message, [`logNotice`](https://threeal.github.io/gha-utils/functions/logNotice.html) for logging a notice message, [`logWarning`](https://threeal.github.io/gha-utils/functions/logWarning.html) for logging a warning message, [`logError`](https://threeal.github.io/gha-utils/functions/logError.html) for logging an error message, and [`logCommand`](https://threeal.github.io/gha-utils/functions/logCommand.html) for logging a command line message:
-
-```ts
-import {
-  logCommand,
-  logDebug,
-  logError,
-  logInfo,
-  logNotice,
-  logWarning,
-} from "gha-utils/log";
-
-try {
-  logInfo("an information");
-  logDebug("a debug");
-  logNotice("a notice");
-  logWarning("a warning");
-  logCommand("command", "arg0", "arg1", "arg2");
-} catch (err) {
-  logError(err);
-}
-```
-
-`logNotice`, `logWarning`, and `logError` accept an optional [`AnnotationOptions`](https://threeal.github.io/gha-utils/interfaces/AnnotationOptions.html) object to attach annotation metadata (source file, line number, etc.) to the log entry:
-
-```ts
-import { logError, logNotice, logWarning } from "gha-utils/log";
-
-logNotice("something to note", { file: "src/index.ts", line: 42 });
-logWarning("deprecated usage", { title: "Deprecation" });
-logError("something went wrong", { file: "src/index.ts", line: 5, col: 1 });
-```
-
-### Grouping Logs
-
-Logs can be grouped using the [`beginLogGroup`](https://threeal.github.io/gha-utils/functions/beginLogGroup.html) and [`endLogGroup`](https://threeal.github.io/gha-utils/functions/endLogGroup.html) functions. All messages logged between these functions will be displayed as a group within a collapsible section:
-
-```ts
-import { beginLogGroup, endLogGroup, logInfo } from "gha-utils/log";
-
-beginLogGroup("a log group");
-logInfo("this message is inside a group");
-endLogGroup();
-
-logInfo("this message is outside a group");
-```
-
-### Stopping and Resuming Workflow Commands
-
-Workflow command processing can be temporarily halted using [`stopCommands`](https://threeal.github.io/gha-utils/functions/stopCommands.html) and then resumed using [`resumeCommands`](https://threeal.github.io/gha-utils/functions/resumeCommands.html). Any output between these calls will not be interpreted as workflow commands:
-
-```ts
-import { randomUUID } from "node:crypto";
-import { resumeCommands, stopCommands } from "gha-utils/log";
-
-const endToken = randomUUID();
-stopCommands(endToken);
-// Output here is not interpreted as workflow commands
-resumeCommands(endToken);
-```
-
-### Executing Commands
-
-The [`exec`](https://threeal.github.io/gha-utils/functions/exec.html) function runs a command as a child process. By default, both stdout and stderr use `"inherit"` mode, passing the output to the current process:
-
-```ts
-import { exec } from "gha-utils/exec";
-
-await exec("node", ["--version"]);
-```
-
-Set `stdout` or `stderr` to `"silent"` to suppress that stream:
-
-```ts
-import { exec } from "gha-utils/exec";
-
-await exec("node", ["--version"], { stdout: "silent", stderr: "silent" });
-```
-
-Set either to `"capture"` to collect and return it as a string:
-
-```ts
-import { exec } from "gha-utils/exec";
-
-const { stdout } = await exec("node", ["--version"], { stdout: "capture" });
-```
-
-Both streams can be captured independently:
-
-```ts
-import { exec } from "gha-utils/exec";
-
-const { stdout, stderr } = await exec("node", ["--version"], {
-  stdout: "capture",
-  stderr: "capture",
-});
-```
+---
 
 ## License
 
-This project is licensed under the terms of the [MIT License](./LICENSE).
+This project is licensed under the [MIT License](./LICENSE).
 
-Copyright © 2024-2026 [Alfi Maulana](https://github.com/threeal)
+Copyright © 2024–2026 [Alfi Maulana](https://github.com/threeal)

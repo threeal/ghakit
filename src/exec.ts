@@ -10,7 +10,7 @@ import { spawn } from "node:child_process";
 export type OutputMode = "inherit" | "capture" | "silent";
 
 /**
- * Options for configuring the behaviour of {@link exec}.
+ * Options for configuring the behavior of {@link exec}.
  */
 export interface ExecOptions {
   /**
@@ -35,6 +35,8 @@ export interface ExecOptions {
  * @param opts - Options with both `stdout` and `stderr` set to `"capture"`.
  * @returns A promise that resolves to an object containing the captured stdout
  *   and stderr when the process exits successfully.
+ * @throws An `Error` if the process fails to spawn, exits with a non-zero
+ *   code, or is terminated by a signal.
  */
 export function exec(
   command: string,
@@ -46,13 +48,17 @@ export function exec(
  * Executes a command as a child process, capturing stdout.
  *
  * stdout is collected and returned as a string instead of being passed to the
- * current process. stderr defaults to `"inherit"`.
+ * current process. stderr uses `"inherit"` mode by default, passing the output
+ * to the current process; set it to `"silent"` to suppress it, or `"capture"`
+ * to also collect it as a string (see the both-capture overload).
  *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
  * @param opts - Options with `stdout` set to `"capture"`.
  * @returns A promise that resolves to an object containing the captured stdout
  *   when the process exits successfully.
+ * @throws An `Error` if the process fails to spawn, exits with a non-zero
+ *   code, or is terminated by a signal.
  */
 export function exec(
   command: string,
@@ -64,13 +70,17 @@ export function exec(
  * Executes a command as a child process, capturing stderr.
  *
  * stderr is collected and returned as a string instead of being passed to the
- * current process. stdout defaults to `"inherit"`.
+ * current process. stdout uses `"inherit"` mode by default, passing the output
+ * to the current process; set it to `"silent"` to suppress it, or `"capture"`
+ * to also collect it as a string (see the both-capture overload).
  *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
  * @param opts - Options with `stderr` set to `"capture"`.
  * @returns A promise that resolves to an object containing the captured stderr
  *   when the process exits successfully.
+ * @throws An `Error` if the process fails to spawn, exits with a non-zero
+ *   code, or is terminated by a signal.
  */
 export function exec(
   command: string,
@@ -83,12 +93,14 @@ export function exec(
  *
  * By default, both stdout and stderr use `"inherit"` mode, passing the output
  * to the current process. Set either to `"silent"` to suppress the output, or
- * `"capture"` to collect and return it as a string.
+ * `"capture"` to collect and return it as a string (see the capture overloads).
  *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
- * @param opts - Options for configuring the execution behaviour.
+ * @param opts - Options for configuring the execution behavior.
  * @returns A promise that resolves when the process exits successfully.
+ * @throws An `Error` if the process fails to spawn, exits with a non-zero
+ *   code, or is terminated by a signal.
  */
 export function exec(
   command: string,

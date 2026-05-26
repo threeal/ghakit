@@ -1,7 +1,7 @@
 {
   "name": "gha-utils",
   "version": "0.4.1",
-  "description": "A minimalistic utility package for developing GitHub Actions",
+  "description": "A utility library for building GitHub Actions with no runtime dependencies",
   "keywords": [
     "github",
     "actions",
