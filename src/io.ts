@@ -17,11 +17,10 @@ import {
  * `getInput("TOKEN")` both read the same `INPUT_TOKEN` env var.
  *
  * @param name - The name of the GitHub Actions input.
- * @returns The trimmed value of the GitHub Actions input, or an empty string if not set.
+ * @returns The value of the GitHub Actions input, or an empty string if not set.
  */
 export function getInput(name: string): string {
-  const value = process.env[`INPUT_${name.toUpperCase()}`] ?? "";
-  return value.trim();
+  return process.env[`INPUT_${name.toUpperCase()}`] ?? "";
 }
 
 /**
@@ -58,11 +57,10 @@ export function setOutputSync(name: string, value: string): void {
  * to {@link setState}.
  *
  * @param name - The name of the GitHub Actions state.
- * @returns The trimmed value of the GitHub Actions state, or an empty string if not set.
+ * @returns The value of the GitHub Actions state, or an empty string if not set.
  */
 export function getState(name: string): string {
-  const value = process.env[`STATE_${name}`] ?? "";
-  return value.trim();
+  return process.env[`STATE_${name}`] ?? "";
 }
 
 /**

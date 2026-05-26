@@ -44,7 +44,7 @@ beforeEach(() => {
 
 describe("getInput", () => {
   test("retrieves a GitHub Actions input", () => {
-    process.env["INPUT_AN-INPUT"] = " a value  ";
+    process.env["INPUT_AN-INPUT"] = "a value";
     expect(getInput("an-input")).toBe("a value");
   });
 
@@ -55,7 +55,7 @@ describe("getInput", () => {
 
 describe("getState", () => {
   test("retrieves a GitHub Actions state", () => {
-    process.env["STATE_a-state"] = " a value  ";
+    process.env["STATE_a-state"] = "a value";
     expect(getState("a-state")).toBe("a value");
   });
 
