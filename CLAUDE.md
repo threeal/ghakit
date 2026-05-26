@@ -18,7 +18,7 @@ Pre-commit hooks are managed by [Lefthook](https://lefthook.dev/), set up with `
 
 ## Architecture
 
-ActKit is a zero-runtime-dependency TypeScript toolkit that wraps GitHub Actions' file-based APIs and workflow command syntax. It is published as four subpath exports, each corresponding to a source file.
+GhaKit is a zero-runtime-dependency TypeScript toolkit that wraps GitHub Actions' file-based APIs and workflow command syntax. It is published as four subpath exports, each corresponding to a source file.
 
 **Source files and subpath exports** (in `src/`):
 
