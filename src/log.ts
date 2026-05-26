@@ -22,18 +22,38 @@ export function logDebug(message: string): void {
  * Optional annotation parameters for workflow commands that support annotations.
  */
 export interface AnnotationOptions {
-  /** Custom title for the annotation. */
+  /**
+   * Custom title displayed in the annotation header.
+   */
   title?: string;
-  /** The filename to associate with the annotation. */
+
+  /**
+   * Path to the file associated with the annotation, relative to the repository root.
+   */
   file?: string;
-  /** The column number to associate with the annotation. */
-  col?: number;
-  /** The end column number to associate with the annotation. */
-  endColumn?: number;
-  /** The line number to associate with the annotation. */
+
+  /**
+   * Starting line number of the annotation within the file.
+   */
   line?: number;
-  /** The end line number to associate with the annotation. */
+
+  /**
+   * Ending line number of the annotation within the file.
+   */
   endLine?: number;
+
+  /**
+   * Starting column number of the annotation within the file.
+   *
+   * Named `col` (not `column`) to match GitHub's workflow command parameter name,
+   * which uses `col` for the start and `endColumn` for the end.
+   */
+  col?: number;
+
+  /**
+   * Ending column number of the annotation within the file.
+   */
+  endColumn?: number;
 }
 
 function formatAnnotationParams(options: AnnotationOptions): string {
@@ -48,7 +68,7 @@ function formatAnnotationParams(options: AnnotationOptions): string {
  * Logs a notice message in GitHub Actions.
  *
  * @param message - The notice message to log.
- * @param options - Optional annotation parameters.
+ * @param options - Optional annotation parameters to pin the message to a file location.
  */
 export function logNotice(message: string, options?: AnnotationOptions): void {
   const params = options ? formatAnnotationParams(options) : "";
@@ -59,7 +79,7 @@ export function logNotice(message: string, options?: AnnotationOptions): void {
  * Logs a warning message in GitHub Actions.
  *
  * @param message - The warning message to log.
- * @param options - Optional annotation parameters.
+ * @param options - Optional annotation parameters to pin the message to a file location.
  */
 export function logWarning(message: string, options?: AnnotationOptions): void {
   const params = options ? formatAnnotationParams(options) : "";
@@ -70,7 +90,7 @@ export function logWarning(message: string, options?: AnnotationOptions): void {
  * Logs an error message in GitHub Actions.
  *
  * @param err - The error, which can be of any type.
- * @param options - Optional annotation parameters.
+ * @param options - Optional annotation parameters to pin the message to a file location.
  */
 export function logError(err: unknown, options?: AnnotationOptions): void {
   const message = err instanceof Error ? err.message : String(err);
@@ -100,7 +120,7 @@ export function addLogMask(value: string): void {
 }
 
 /**
- * Begins a log group in GitHub Actions.
+ * Begins a log group in GitHub Actions. Close it with {@link endLogGroup}.
  *
  * @param name - The name of the log group.
  */
@@ -109,25 +129,27 @@ export function beginLogGroup(name: string): void {
 }
 
 /**
- * Ends the current log group in GitHub Actions.
+ * Ends the log group opened by {@link beginLogGroup}.
  */
 export function endLogGroup(): void {
   process.stdout.write(`::endgroup::${EOL}`);
 }
 
 /**
- * Stops processing workflow commands in GitHub Actions until resumed.
+ * Stops processing workflow commands in GitHub Actions until
+ * {@link resumeCommands} is called with the same token.
  *
- * @param endToken - A token used to resume command processing.
+ * @param endToken - A unique token identifying this stop/resume pair.
  */
 export function stopCommands(endToken: string): void {
   process.stdout.write(`::stop-commands::${endToken}${EOL}`);
 }
 
 /**
- * Resumes processing workflow commands in GitHub Actions.
+ * Resumes processing workflow commands in GitHub Actions after
+ * {@link stopCommands} was called with the same token.
  *
- * @param endToken - The token that was used to stop command processing.
+ * @param endToken - The token that was passed to {@link stopCommands}.
  */
 export function resumeCommands(endToken: string): void {
   process.stdout.write(`::${endToken}::${EOL}`);
