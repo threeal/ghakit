@@ -18,9 +18,7 @@ jobs:
           sudo apt install lefthook
 
       - name: Setup pnpm
-        uses: threeal/setup-pnpm-action@v1.0.0
-        with:
-          version: 10.34.1
+        uses: threeal/setup-pnpm-action@v2.0.0
 
       - name: Check pre-commit hook
         run: lefthook run pre-commit --all-files
