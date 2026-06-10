@@ -9,8 +9,8 @@ pnpm tsc                 # type-check (no emit)
 pnpm eslint .            # lint
 pnpm prettier --write .  # format
 pnpm typedoc --emit none # validate documentation build
-pnpm test                # run tests with coverage
-pnpm test src/io.test.ts # run a single test file
+pnpm vitest run          # run all tests (Vitest)
+pnpm vitest run <file>   # run a single test file
 pnpm prepack             # compile to dist/
 ```
 

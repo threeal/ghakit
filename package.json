@@ -38,8 +38,7 @@
     "dist"
   ],
   "scripts": {
-    "prepack": "tsc -p tsconfig.build.json",
-    "test": "vitest run"
+    "prepack": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
