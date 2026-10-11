@@ -13,7 +13,7 @@ pre-commit:
       run: pnpm prettier --write .
 
     - name: fix lint
-      run: pnpm eslint --fix
+      run: pnpm eslint --fix --max-warnings 0
 
     - name: check documentation
       run: pnpm typedoc --emit none
