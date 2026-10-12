@@ -15,7 +15,6 @@ import {
  *
  * Input names are matched case-insensitively — `getInput("token")` and
  * `getInput("TOKEN")` both read the same `INPUT_TOKEN` env var.
- *
  * @param name - The name of the GitHub Actions input.
  * @returns The value of the GitHub Actions input, or an empty string if not set.
  */
@@ -28,7 +27,6 @@ export function getInput(name: string): string {
  *
  * Appends the value to the output file so it is available to subsequent steps
  * in the workflow.
- *
  * @param name - The name of the GitHub Actions output.
  * @param value - The value to set for the GitHub Actions output.
  * @returns A promise that resolves when the value is successfully set.
@@ -42,7 +40,6 @@ export async function setOutput(name: string, value: string): Promise<void> {
  *
  * Appends the value to the output file so it is available to subsequent steps
  * in the workflow.
- *
  * @param name - The name of the GitHub Actions output.
  * @param value - The value to set for the GitHub Actions output.
  */
@@ -55,7 +52,6 @@ export function setOutputSync(name: string, value: string): void {
  *
  * State names are case-sensitive — use the exact same casing that was passed
  * to {@link setState}.
- *
  * @param name - The name of the GitHub Actions state.
  * @returns The value of the GitHub Actions state, or an empty string if not set.
  */
@@ -68,7 +64,6 @@ export function getState(name: string): string {
  *
  * Makes the state available in the current process and persists it across
  * the pre, main, and post steps of the same action.
- *
  * @param name - The name of the GitHub Actions state.
  * @param value - The value to set for the GitHub Actions state.
  * @returns A promise that resolves when the value is successfully set.
@@ -83,7 +78,6 @@ export async function setState(name: string, value: string): Promise<void> {
  *
  * Makes the state available in the current process and persists it across
  * the pre, main, and post steps of the same action.
- *
  * @param name - The name of the GitHub Actions state.
  * @param value - The value to set for the GitHub Actions state.
  */
@@ -97,7 +91,6 @@ export function setStateSync(name: string, value: string): void {
  *
  * Updates `process.env` immediately so the variable is available in the
  * current process, and appends it to the env file for subsequent steps.
- *
  * @param name - The name of the environment variable.
  * @param value - The value to set for the environment variable.
  * @returns A promise that resolves when the environment variable is successfully set.
@@ -112,7 +105,6 @@ export async function setEnv(name: string, value: string): Promise<void> {
  *
  * Updates `process.env` immediately so the variable is available in the
  * current process, and appends it to the env file for subsequent steps.
- *
  * @param name - The name of the environment variable.
  * @param value - The value to set for the environment variable.
  */
@@ -126,7 +118,6 @@ export function setEnvSync(name: string, value: string): void {
  *
  * Prepends the path to `process.env.PATH` immediately so it is available in
  * the current process, and appends it to the path file for subsequent steps.
- *
  * @param sysPath - The system path to add to the environment.
  * @returns A promise that resolves when the system path is successfully added.
  */
@@ -144,7 +135,6 @@ export async function addPath(sysPath: string): Promise<void> {
  *
  * Prepends the path to `process.env.PATH` immediately so it is available in
  * the current process, and appends it to the path file for subsequent steps.
- *
  * @param sysPath - The system path to add to the environment.
  */
 export function addPathSync(sysPath: string): void {

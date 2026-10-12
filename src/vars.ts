@@ -1,6 +1,5 @@
 /**
  * Returns whether the workflow is running in a CI environment.
- *
  * @returns `true` if running in a CI environment, `false` otherwise.
  */
 export function getCI(): boolean {
@@ -12,7 +11,6 @@ export function getCI(): boolean {
  *
  * For scripts without an ID, GitHub uses `__run`. Repeated invocations get
  * numeric suffixes (e.g. `__run_2`).
- *
  * @returns The name or ID of the currently running action or step, or an
  *   empty string if not set.
  */
@@ -25,7 +23,6 @@ export function getGitHubAction(): string {
  *
  * Only set in composite actions. Useful for accessing files in the action's
  * own repository.
- *
  * @returns The path where the action is located, or `undefined` outside of
  *   composite actions.
  */
@@ -37,7 +34,6 @@ export function getGitHubActionPath(): string | undefined {
  * Returns the owner and repository name of the action being executed.
  *
  * Only set for steps that execute an action (e.g. `actions/checkout`).
- *
  * @returns The action repository in `owner/repo` format, or `undefined` if
  *   the step is not executing an action.
  */
@@ -50,7 +46,6 @@ export function getGitHubActionRepository(): string | undefined {
  *
  * Always `true` when GitHub Actions is executing the workflow. Useful for
  * differentiating local runs from automated CI runs.
- *
  * @returns `true` if running in GitHub Actions, `false` otherwise.
  */
 export function getGitHubActions(): boolean {
@@ -59,7 +54,6 @@ export function getGitHubActions(): boolean {
 
 /**
  * Returns the username of the person or app that triggered the workflow.
- *
  * @returns The actor's username, or an empty string if not set.
  */
 export function getGitHubActor(): string {
@@ -70,7 +64,6 @@ export function getGitHubActor(): string {
  * Returns the account ID of the person or app that triggered the workflow.
  *
  * This is distinct from the username in `GITHUB_ACTOR`.
- *
  * @returns The actor's account ID, or an empty string if not set.
  */
 export function getGitHubActorId(): string {
@@ -79,7 +72,6 @@ export function getGitHubActorId(): string {
 
 /**
  * Returns the GitHub API URL.
- *
  * @returns The API URL (e.g. `https://api.github.com`), or an empty string
  *   if not set.
  */
@@ -92,7 +84,6 @@ export function getGitHubApiUrl(): string {
  *
  * Only set when the triggering event is `pull_request` or
  * `pull_request_target`.
- *
  * @returns The base branch name, or `undefined` outside of pull request events.
  */
 export function getGitHubBaseRef(): string | undefined {
@@ -102,7 +93,6 @@ export function getGitHubBaseRef(): string | undefined {
 /**
  * Returns the path to the file used to set environment variables from
  * workflow commands.
- *
  * @returns The path to the GitHub env file, or an empty string if not set.
  */
 export function getGitHubEnv(): string {
@@ -111,7 +101,6 @@ export function getGitHubEnv(): string {
 
 /**
  * Returns the name of the event that triggered the workflow.
- *
  * @returns The event name (e.g. `push`, `pull_request`), or an empty string
  *   if not set.
  */
@@ -121,7 +110,6 @@ export function getGitHubEventName(): string {
 
 /**
  * Returns the path to the file containing the full event webhook payload.
- *
  * @returns The path to the event payload file, or an empty string if not set.
  */
 export function getGitHubEventPath(): string {
@@ -130,7 +118,6 @@ export function getGitHubEventPath(): string {
 
 /**
  * Returns the GitHub GraphQL API URL.
- *
  * @returns The GraphQL API URL (e.g. `https://api.github.com/graphql`), or
  *   an empty string if not set.
  */
@@ -143,7 +130,6 @@ export function getGitHubGraphqlUrl(): string {
  *
  * Only set when the triggering event is `pull_request` or
  * `pull_request_target`.
- *
  * @returns The head branch name, or `undefined` outside of pull request events.
  */
 export function getGitHubHeadRef(): string | undefined {
@@ -152,7 +138,6 @@ export function getGitHubHeadRef(): string | undefined {
 
 /**
  * Returns the `job_id` of the current job as defined in the workflow file.
- *
  * @returns The current job ID, or an empty string if not set.
  */
 export function getGitHubJob(): string {
@@ -162,7 +147,6 @@ export function getGitHubJob(): string {
 /**
  * Returns the path to the file used to set step outputs from workflow
  * commands.
- *
  * @returns The path to the GitHub output file, or an empty string if not set.
  */
 export function getGitHubOutput(): string {
@@ -172,7 +156,6 @@ export function getGitHubOutput(): string {
 /**
  * Returns the path to the file used to prepend entries to the system `PATH`
  * from workflow commands.
- *
  * @returns The path to the GitHub path file, or an empty string if not set.
  */
 export function getGitHubPath(): string {
@@ -181,7 +164,6 @@ export function getGitHubPath(): string {
 
 /**
  * Returns the fully-formed ref that triggered the workflow.
- *
  * @returns The full ref string (e.g. `refs/heads/main`, `refs/tags/v1.0`),
  *   or an empty string if not set.
  */
@@ -193,7 +175,6 @@ export function getGitHubRef(): string {
  * Returns the short ref name of the branch or tag that triggered the run.
  *
  * For `pull_request` events, the format is `<pr_number>/merge`.
- *
  * @returns The short ref name, or an empty string if not set.
  */
 export function getGitHubRefName(): string {
@@ -203,7 +184,6 @@ export function getGitHubRefName(): string {
 /**
  * Returns whether branch protections or rulesets are configured for the
  * triggering ref.
- *
  * @returns `true` if the ref is protected, `false` otherwise.
  */
 export function getGitHubRefProtected(): boolean {
@@ -212,7 +192,6 @@ export function getGitHubRefProtected(): boolean {
 
 /**
  * Returns the type of ref that triggered the workflow run.
- *
  * @returns The ref type, either `branch` or `tag`, or an empty string if not
  *   set.
  */
@@ -222,7 +201,6 @@ export function getGitHubRefType(): string {
 
 /**
  * Returns the owner and repository name for the current repository.
- *
  * @returns The repository name in `owner/repo` format
  *   (e.g. `octocat/Hello-World`), or an empty string if not set.
  */
@@ -234,7 +212,6 @@ export function getGitHubRepository(): string {
  * Returns the unique ID of the repository.
  *
  * This is distinct from the repository name.
- *
  * @returns The repository ID, or an empty string if not set.
  */
 export function getGitHubRepositoryId(): string {
@@ -243,7 +220,6 @@ export function getGitHubRepositoryId(): string {
 
 /**
  * Returns the repository owner's username.
- *
  * @returns The repository owner's username, or an empty string if not set.
  */
 export function getGitHubRepositoryOwner(): string {
@@ -254,7 +230,6 @@ export function getGitHubRepositoryOwner(): string {
  * Returns the unique account ID of the repository owner.
  *
  * This is distinct from the owner's username.
- *
  * @returns The repository owner's account ID, or an empty string if not set.
  */
 export function getGitHubRepositoryOwnerId(): string {
@@ -263,7 +238,6 @@ export function getGitHubRepositoryOwnerId(): string {
 
 /**
  * Returns the number of days that workflow run logs and artifacts are retained.
- *
  * @returns The retention period in days, or `0` if not set.
  */
 export function getGitHubRetentionDays(): number {
@@ -274,7 +248,6 @@ export function getGitHubRetentionDays(): number {
  * Returns the attempt number for the current workflow run.
  *
  * Starts at `1` for the first attempt and increments with each re-run.
- *
  * @returns The run attempt number, or `0` if not set.
  */
 export function getGitHubRunAttempt(): number {
@@ -285,7 +258,6 @@ export function getGitHubRunAttempt(): number {
  * Returns the unique ID for the current workflow run within the repository.
  *
  * This value does not change if the workflow is re-run.
- *
  * @returns The workflow run ID, or an empty string if not set.
  */
 export function getGitHubRunId(): string {
@@ -296,7 +268,6 @@ export function getGitHubRunId(): string {
  * Returns the sequential run number for the workflow within the repository.
  *
  * Starts at `1` for the first run and increments with each new run.
- *
  * @returns The workflow run number, or `0` if not set.
  */
 export function getGitHubRunNumber(): number {
@@ -305,7 +276,6 @@ export function getGitHubRunNumber(): number {
 
 /**
  * Returns the URL of the GitHub server.
- *
  * @returns The GitHub server URL (e.g. `https://github.com`), or an empty
  *   string if not set.
  */
@@ -317,7 +287,6 @@ export function getGitHubServerUrl(): string {
  * Returns the commit SHA that triggered the workflow.
  *
  * The exact value depends on the triggering event.
- *
  * @returns The triggering commit SHA, or an empty string if not set.
  */
 export function getGitHubSha(): string {
@@ -327,7 +296,6 @@ export function getGitHubSha(): string {
 /**
  * Returns the path to the file used to persist state values from workflow
  * commands.
- *
  * @returns The path to the GitHub state file, or an empty string if not set.
  */
 export function getGitHubState(): string {
@@ -337,7 +305,6 @@ export function getGitHubState(): string {
 /**
  * Returns the path to the file used to write job summaries from workflow
  * commands.
- *
  * @returns The path to the step summary file, or an empty string if not set.
  */
 export function getGitHubStepSummary(): string {
@@ -349,7 +316,6 @@ export function getGitHubStepSummary(): string {
  *
  * May differ from {@link getGitHubActor} when the workflow is re-run by a
  * different user.
- *
  * @returns The triggering actor's username, or an empty string if not set.
  */
 export function getGitHubTriggeringActor(): string {
@@ -360,7 +326,6 @@ export function getGitHubTriggeringActor(): string {
  * Returns the name of the workflow.
  *
  * Defaults to the full file path if the workflow file has no `name` field.
- *
  * @returns The workflow name, or an empty string if not set.
  */
 export function getGitHubWorkflow(): string {
@@ -369,7 +334,6 @@ export function getGitHubWorkflow(): string {
 
 /**
  * Returns the ref path to the workflow file.
- *
  * @returns The workflow file ref path
  *   (e.g. `owner/repo/.github/workflows/ci.yml@refs/heads/main`), or an
  *   empty string if not set.
@@ -380,7 +344,6 @@ export function getGitHubWorkflowRef(): string {
 
 /**
  * Returns the commit SHA for the workflow file.
- *
  * @returns The workflow file's commit SHA, or an empty string if not set.
  */
 export function getGitHubWorkflowSha(): string {
@@ -390,7 +353,6 @@ export function getGitHubWorkflowSha(): string {
 /**
  * Returns the default working directory on the runner where the repository
  * is checked out.
- *
  * @returns The workspace path, or an empty string if not set.
  */
 export function getGitHubWorkspace(): string {
@@ -399,7 +361,6 @@ export function getGitHubWorkspace(): string {
 
 /**
  * Returns the CPU architecture of the runner executing the job.
- *
  * @returns The runner architecture (e.g. `X86`, `X64`, `ARM`, `ARM64`), or
  *   an empty string if not set.
  */
@@ -411,7 +372,6 @@ export function getRunnerArch(): string {
  * Returns whether debug logging is enabled for the runner.
  *
  * Only set when debug logging is enabled, with a value of `1`.
- *
  * @returns `true` if debug logging is enabled, `false` otherwise.
  */
 export function getRunnerDebug(): boolean {
@@ -420,7 +380,6 @@ export function getRunnerDebug(): boolean {
 
 /**
  * Returns the type of runner executing the job.
- *
  * @returns The runner environment type, either `github-hosted` or
  *   `self-hosted`, or an empty string if not set.
  */
@@ -432,7 +391,6 @@ export function getRunnerEnvironment(): string {
  * Returns the name of the runner executing the job.
  *
  * Names may not be unique across repository and organization levels.
- *
  * @returns The runner name, or an empty string if not set.
  */
 export function getRunnerName(): string {
@@ -441,7 +399,6 @@ export function getRunnerName(): string {
 
 /**
  * Returns the operating system of the runner executing the job.
- *
  * @returns The runner OS (e.g. `Linux`, `Windows`, `macOS`), or an empty
  *   string if not set.
  */
@@ -453,7 +410,6 @@ export function getRunnerOs(): string {
  * Returns the path to a temporary directory on the runner.
  *
  * This directory is cleared at the start and end of each job.
- *
  * @returns The runner temp directory path, or an empty string if not set.
  */
 export function getRunnerTemp(): string {
@@ -463,7 +419,6 @@ export function getRunnerTemp(): string {
 /**
  * Returns the path to the directory containing preinstalled tools for
  * GitHub-hosted runners.
- *
  * @returns The runner tool cache path, or an empty string if not set.
  */
 export function getRunnerToolCache(): string {

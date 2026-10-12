@@ -2,7 +2,6 @@ import { EOL } from "node:os";
 
 /**
  * Logs an information message in GitHub Actions.
- *
  * @param message - The information message to log.
  */
 export function logInfo(message: string): void {
@@ -11,7 +10,6 @@ export function logInfo(message: string): void {
 
 /**
  * Logs a debug message in GitHub Actions.
- *
  * @param message - The debug message to log.
  */
 export function logDebug(message: string): void {
@@ -56,6 +54,11 @@ export interface AnnotationOptions {
   endColumn?: number;
 }
 
+/**
+ * Formats annotation options as workflow command parameters.
+ * @param options - The annotation options to format.
+ * @returns The parameters as a space-prefixed `key=value,...` string, or an empty string if no options are set.
+ */
 function formatAnnotationParams(options: AnnotationOptions): string {
   const params = Object.entries(options)
     .filter(([, v]) => v !== undefined)
@@ -66,7 +69,6 @@ function formatAnnotationParams(options: AnnotationOptions): string {
 
 /**
  * Logs a notice message in GitHub Actions.
- *
  * @param message - The notice message to log.
  * @param options - Optional annotation parameters to pin the message to a file location.
  */
@@ -77,7 +79,6 @@ export function logNotice(message: string, options?: AnnotationOptions): void {
 
 /**
  * Logs a warning message in GitHub Actions.
- *
  * @param message - The warning message to log.
  * @param options - Optional annotation parameters to pin the message to a file location.
  */
@@ -88,7 +89,6 @@ export function logWarning(message: string, options?: AnnotationOptions): void {
 
 /**
  * Logs an error message in GitHub Actions.
- *
  * @param err - The error, which can be of any type.
  * @param options - Optional annotation parameters to pin the message to a file location.
  */
@@ -100,7 +100,6 @@ export function logError(err: unknown, options?: AnnotationOptions): void {
 
 /**
  * Logs a command along with its arguments in GitHub Actions.
- *
  * @param command - The command to log.
  * @param args - The arguments of the command.
  */
@@ -111,7 +110,6 @@ export function logCommand(command: string, ...args: string[]): void {
 
 /**
  * Masks a value in GitHub Actions logs.
- *
  * @param value - The value to mask. Any occurrence of this value in subsequent
  *   log output will be replaced with `***`.
  */
@@ -121,7 +119,6 @@ export function addLogMask(value: string): void {
 
 /**
  * Begins a log group in GitHub Actions. Close it with {@link endLogGroup}.
- *
  * @param name - The name of the log group.
  */
 export function beginLogGroup(name: string): void {
@@ -138,7 +135,6 @@ export function endLogGroup(): void {
 /**
  * Stops processing workflow commands in GitHub Actions until
  * {@link resumeCommands} is called with the same token.
- *
  * @param endToken - A unique token identifying this stop/resume pair.
  */
 export function stopCommands(endToken: string): void {
@@ -148,7 +144,6 @@ export function stopCommands(endToken: string): void {
 /**
  * Resumes processing workflow commands in GitHub Actions after
  * {@link stopCommands} was called with the same token.
- *
  * @param endToken - The token that was passed to {@link stopCommands}.
  */
 export function resumeCommands(endToken: string): void {

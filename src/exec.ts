@@ -29,7 +29,6 @@ export interface ExecOptions {
  *
  * Both streams are collected and returned as strings instead of being passed
  * to the current process.
- *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
  * @param opts - Options with both `stdout` and `stderr` set to `"capture"`.
@@ -51,7 +50,6 @@ export function exec(
  * current process. stderr uses `"inherit"` mode by default, passing the output
  * to the current process; set it to `"silent"` to suppress it, or `"capture"`
  * to also collect it as a string (see the both-capture overload).
- *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
  * @param opts - Options with `stdout` set to `"capture"`.
@@ -73,7 +71,6 @@ export function exec(
  * current process. stdout uses `"inherit"` mode by default, passing the output
  * to the current process; set it to `"silent"` to suppress it, or `"capture"`
  * to also collect it as a string (see the both-capture overload).
- *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
  * @param opts - Options with `stderr` set to `"capture"`.
@@ -94,7 +91,6 @@ export function exec(
  * By default, both stdout and stderr use `"inherit"` mode, passing the output
  * to the current process. Set either to `"silent"` to suppress the output, or
  * `"capture"` to collect and return it as a string (see the capture overloads).
- *
  * @param command - The command to execute.
  * @param args - The arguments to pass to the command.
  * @param opts - Options for configuring the execution behavior.
