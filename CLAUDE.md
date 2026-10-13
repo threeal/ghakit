@@ -2,29 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Commands
+## About This Repository
 
-```sh
-pnpm tsc                 # type-check (no emit)
-pnpm eslint .            # lint
-pnpm prettier --write .  # format
-pnpm typedoc --emit none # validate documentation build
-pnpm vitest run          # run all tests (Vitest)
-pnpm vitest run <file>   # run a single test file
-pnpm prepack             # compile to dist/
-```
+A TypeScript toolkit for building GitHub Actions, wrapping their file-based and workflow command APIs with no runtime dependencies. Each module in `src/` is published as its own subpath export (`ghakit/<module>`), with no root entry — listed in `package.json`'s `exports` and `typedoc.json`'s `entryPoints`.
 
-Pre-commit hooks are managed by [Lefthook](https://lefthook.dev/), set up with `lefthook install`. Hooks automatically run dependency installation, type checking, formatting, linting, and documentation validation before each commit. If formatting or linting modifies any files, the commit is aborted — stage the auto-fixed files and recommit.
+## Gotchas
 
-## Architecture
-
-GhaKit is a zero-runtime-dependency TypeScript toolkit that wraps GitHub Actions' file-based APIs and workflow command syntax. It is published as four subpath exports, each corresponding to a source file.
-
-**Source files and subpath exports** (in `src/`):
-
-- `exec.ts` — wraps Node's `child_process.spawn` in a promise. Each of stdout and stderr accepts an `OutputMode`: `"inherit"` (default, passes output to the current process), `"capture"` (collects and returns the output as a string), or `"silent"` (suppresses the output). Modes can be set independently per stream.
-- `io.ts` — reads inputs from `INPUT_*` env vars and state from `STATE_*` env vars. Appends `name=value` pairs to `GITHUB_OUTPUT`, `GITHUB_STATE`, and `GITHUB_ENV`; appends a bare path to `GITHUB_PATH`. Every mutating function has both an async and a sync variant.
-- `log.ts` — writes to stdout. `logInfo` writes a plain message; all other log functions write GitHub Actions workflow commands (`::debug::`, `::notice::`, `::warning::`, `::error::`, `::add-mask::`, `::group::`, `::endgroup::`, `::stop-commands::`, `[command]`, etc.). `logNotice`, `logWarning`, and `logError` accept an optional `AnnotationOptions` object (`title`, `file`, `line`, `endLine`, `col`, `endColumn`) that is serialized as `key=value,...` between the command name and message.
-- `vars.ts` — exposes typed getter functions for every [default GitHub Actions variable](https://docs.github.com/en/actions/reference/workflows-and-actions/variables) (e.g. `getGitHubRepository()`, `getRunnerOs()`). Boolean variables return `boolean`, numeric count/day variables (`getGitHubRetentionDays`, `getGitHubRunAttempt`, `getGitHubRunNumber`) return `number`, context-specific variables that are only set in certain events or action types (`getGitHubActionPath`, `getGitHubActionRepository`, `getGitHubBaseRef`, `getGitHubHeadRef`) return `string | undefined`, and all others (including ID variables) return `string`. When the env var is absent, always-present string getters return `""`, numeric getters return `0`, boolean getters return `false`, and context-specific getters return `undefined`.
-
-**Testing**: Vitest with 100% coverage enforced. Tests spy on `process.stdout.write` and manipulate `process.env` to simulate the GitHub Actions runtime.
+- `lefthook run pre-commit` skips every job when nothing is staged, even ones that ignore the staged file list — pass `--all-files` to run it outside an actual commit.
+- The pre-commit hook fixes files in place, and the run fails if any file changes. Report that failure and leave the fixes for the user to review and re-stage before committing again.
+- Vitest's 100% coverage threshold applies to the whole run, not per file — a single test file can fail on source that other tests cover, so run the full suite (`pnpm vitest run`).
+- `tsconfig.json` is for type checking, tests included; `tsconfig.build.json` only builds the package during `prepack`.
+- `.gitignore` ignores every dotfile and dotdir (`.*`) — a new one needs an explicit `!` exception there or it silently won't be tracked.
