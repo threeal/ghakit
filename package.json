@@ -46,7 +46,7 @@
     "@types/node": "^26.6.5",
     "@vitest/coverage-v8": "^5.0.4",
     "eslint": "^10.8.1",
-    "eslint-plugin-jsdoc": "^65.3.2",
+    "eslint-plugin-jsdoc": "^65.3.4",
     "jiti": "^2.7.0",
     "prettier": "^3.9.10",
     "prettier-plugin-organize-imports": "^4.3.0",
